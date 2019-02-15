@@ -1,0 +1,11 @@
+target/*
+*~
+~*
+\#*
+*\#
+*.DS_store
+*.DS_Store
+*.bak
+*.class
+*.jar
+
