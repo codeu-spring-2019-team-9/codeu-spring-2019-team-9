@@ -5,7 +5,7 @@
 ### Build
 
 ```
-mvn appengine:package
+mvn package
 ```
 
 ### Start Local Development Server
