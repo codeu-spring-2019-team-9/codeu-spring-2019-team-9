@@ -21,7 +21,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Returns login data as JSON, e.g. {"isLoggedIn": true, "username": "Ada"}
  */
-@WebServlet("/login-status")
 public class LoginStatusServlet extends HttpServlet {
 
   @Override
