@@ -31,7 +31,7 @@ limitations under the License.
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <failOnMissingWebXml>true</failOnMissingWebXml>
   </properties>
 
   <dependencies>
@@ -70,9 +70,7 @@ limitations under the License.
         <configuration>
           <project>${env.GOOGLE_CLOUD_PROJECT}</project>
           <version>GCLOUD_CONFIG</version>
-          <devserverVersion>2-alpha</devserverVersion>
           <automaticRestart>true</automaticRestart>
-          <useMtimeFileWatcher>true</useMtimeFileWatcher>
         </configuration>
       </plugin>
     </plugins>

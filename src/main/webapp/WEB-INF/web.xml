@@ -16,4 +16,43 @@
 -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+  <servlet>
+    <servlet-name>login</servlet-name>
+    <servlet-class>com.google.codeu.servlets.LoginServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>login-status</servlet-name>
+    <servlet-class>com.google.codeu.servlets.LoginStatusServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>logout</servlet-name>
+    <servlet-class>com.google.codeu.servlets.LogoutServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>messages</servlet-name>
+    <servlet-class>com.google.codeu.servlets.MessageServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <url-pattern>/login</url-pattern>
+    <servlet-name>login</servlet-name>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/login-status</url-pattern>
+    <servlet-name>login-status</servlet-name>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/logout</url-pattern>
+    <servlet-name>logout</servlet-name>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/messages</url-pattern>
+    <servlet-name>messages</servlet-name>
+  </servlet-mapping>
 </web-app>
