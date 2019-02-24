@@ -36,6 +36,11 @@
     <servlet-class>com.google.codeu.servlets.MessageServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>stats</servlet-name>
+    <servlet-class>com.google.codeu.servlets.StatsPageServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <url-pattern>/login</url-pattern>
     <servlet-name>login</servlet-name>
@@ -54,5 +59,10 @@
   <servlet-mapping>
     <url-pattern>/messages</url-pattern>
     <servlet-name>messages</servlet-name>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/stats</url-pattern>
+    <servlet-name>stats</servlet-name>
   </servlet-mapping>
 </web-app>
