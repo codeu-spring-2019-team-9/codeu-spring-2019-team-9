@@ -2,6 +2,8 @@ package com.google.codeu.servlets;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,13 +21,15 @@ public class StatsPageServlet extends HttpServlet{
   private Datastore datastore;
 
   @Override
-  public void init() {
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
     datastore = new Datastore();
   }
 
   /**
    * Responds with site statistics in JSON.
    */
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
