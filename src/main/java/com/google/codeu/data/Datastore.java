@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/** import for Fetch Options */
+import com.google.appengine.api.datastore.FetchOptions;
+
 /** Provides access to the data stored in Datastore. */
 public class Datastore {
 
@@ -81,4 +84,12 @@ public class Datastore {
 
     return messages;
   }
+
+  /** Returns the total number of messages for all users. */
+  public int getTotalMessageCount() {
+    Query query = new Query("Message");
+    PreparedQuery results = datastore.prepare(query);
+    return results.countEntities(FetchOptions.Builder.withDefaults());
+  }
+
 }
