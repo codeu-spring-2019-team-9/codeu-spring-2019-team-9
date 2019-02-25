@@ -36,23 +36,33 @@
     <servlet-class>com.google.codeu.servlets.MessageServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>aboutme</servlet-name>
+    <servlet-class>com.google.codeu.servlets.AboutMeServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
-    <url-pattern>/login</url-pattern>
     <servlet-name>login</servlet-name>
+    <url-pattern>/login</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <url-pattern>/login-status</url-pattern>
     <servlet-name>login-status</servlet-name>
+    <url-pattern>/login-status</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <url-pattern>/logout</url-pattern>
     <servlet-name>logout</servlet-name>
+    <url-pattern>/logout</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <url-pattern>/messages</url-pattern>
     <servlet-name>messages</servlet-name>
+    <url-pattern>/messages</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>aboutme</servlet-name>
+    <url-pattern>/about</url-pattern>
   </servlet-mapping>
 </web-app>

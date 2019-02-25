@@ -2,6 +2,9 @@ package com.google.codeu.servlets;
 
 import java.io.IOException;
 
+/*
+import javax.servlet.annotation.WebServlet;
+ */
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +17,6 @@ import com.google.codeu.data.Datastore;
 /**
  * Handles fetching and saving user data.
  */
-@WebServlet("/about")
 public class AboutMeServlet extends HttpServlet {
 
     private Datastore datastore;
