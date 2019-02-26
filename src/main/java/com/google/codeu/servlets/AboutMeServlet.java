@@ -18,7 +18,7 @@ import com.google.codeu.data.Datastore;
  * Handles fetching and saving user data.
  */
 public class AboutMeServlet extends HttpServlet {
-
+    // removed WebServlet annotation to implement the url-mapping in web.xml
     private Datastore datastore;
 
     @Override
@@ -32,7 +32,6 @@ public class AboutMeServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-
         response.setContentType("text/html");
 
         String user = request.getParameter("user");
