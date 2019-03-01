@@ -103,7 +103,8 @@ function buildUI() {
 function fetchAboutMe(){
     const url = '/about?user=' + parameterUsername;
     fetch(url).then((response) => {
-        return response.json();
+        /** catches an error with a .json() object, changing to .text() for testing purposes */
+        return response.text();
     }).then((aboutMe) => {
         const aboutMeContainer = document.getElementById('about-me-container');
         if(aboutMe == ''){
