@@ -21,7 +21,9 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +58,12 @@ public class Datastore {
    * @return a list of messages posted by the user, or empty list if user has never posted a
    *     message. List is sorted by time descending.
    */
-  public List<Message> getMessages(String user) {
+  public List<Message> getMessages(String recipient) {
     List<Message> messages = new ArrayList<>();
 
     Query query =
         new Query("Message")
-            .setFilter(new Query.FilterPredicate("user", FilterOperator.EQUAL, user))
+            .setFilter(new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient))
             .addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query);
 
@@ -71,7 +73,7 @@ public class Datastore {
         UUID id = UUID.fromString(idString);
         String text = (String) entity.getProperty("text");
         long timestamp = (long) entity.getProperty("timestamp");
-        String recipient = (String) entity.getProperty("recipient");
+        String user = (String) entity.getProperty("user");
         Message message = new Message(id, user, text, timestamp, recipient);
 
         messages.add(message);
@@ -80,6 +82,71 @@ public class Datastore {
         System.err.println(entity.toString());
         e.printStackTrace();
       }
+    }
+
+    // test if sender/reciever messages are fetched
+    for (int i = 0; i < messages.size(); i++) {
+      System.out.println(messages.get(i));
+    }
+
+    return messages;
+  }
+
+  /**
+   * Gets messages sent between user and a recipient.
+   *
+   * @return a list of messages sent between the user and a recipient, or empty list if user or recipient has never sent a
+   *     message to each other. List is sorted by time descending.
+   */
+
+  // TODO: Finish this feature
+  public List<Message> getMessagesBetweenTwoUsers(String user, String recipient) {
+    List<Message> messages = new ArrayList<>();
+
+    // Messages between two people, where user is the sender
+    Filter userSentMessages = new Query.FilterPredicate("user", FilterOperator.EQUAL, user);
+    Filter recipientReceivedMessages = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient);
+
+    // Messages between two people, where user is the receiver
+    Filter userReceivedMessages = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, user);
+    Filter recipientSentMessages = new Query.FilterPredicate("user", FilterOperator.EQUAL, recipient);
+
+    // All the messages sent by user to the other person
+    Filter userMessages = CompositeFilterOperator.and(userSentMessages, recipientReceivedMessages);
+
+    // All the messaged recieved by user sent by the other person
+    Filter recipientMessages = CompositeFilterOperator.and(recipientSentMessages, userReceivedMessages);
+
+    // All the messages between the two users
+    Filter directMessages = CompositeFilterOperator.or(userMessages, recipientMessages);
+
+    Query query =
+        new Query("Message")
+            .setFilter(directMessages)
+            .addSort("timestamp", SortDirection.DESCENDING);
+    PreparedQuery results = datastore.prepare(query);
+
+    for (Entity entity : results.asIterable()) {
+      try {
+        String idString = entity.getKey().getName();
+        UUID id = UUID.fromString(idString);
+        String text = (String) entity.getProperty("text");
+        long timestamp = (long) entity.getProperty("timestamp");
+        String sender = (String) entity.getProperty("user");
+        String receiver = (String) entity.getProperty("receiver");
+        Message message = new Message(id, sender, text, timestamp, receiver);
+
+        messages.add(message);
+      } catch (Exception e) {
+        System.err.println("Error reading message.");
+        System.err.println(entity.toString());
+        e.printStackTrace();
+      }
+    }
+
+    // test if sender/reciever messages are fetched
+    for (int i = 0; i < messages.size(); i++) {
+      System.out.println(messages.get(i));
     }
 
     return messages;
