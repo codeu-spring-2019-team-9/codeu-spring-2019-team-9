@@ -88,32 +88,30 @@ public class Datastore {
   }
 
   /**
-   * Gets messages sent between user and a recipient.
+   * Gets messages sent between the logged-in user and another user.
    *
-   * @return a list of messages sent between the user and a recipient, or empty list if user or recipient has never sent a
-   *     message to each other. List is sorted by time ascending.
+   * @return a list of messages sent between the logged-in user and another user, or empty list
+   * if logged-in user or other user have never sent a message to each other. List is sorted by time ascending.
    */
-
-  // TODO: Finish this feature
-  public List<Message> getMessagesBetweenTwoUsers(String user, String recipient) {
+  public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
     List<Message> messages = new ArrayList<>();
 
-    // Messages between two people, where user is the sender
-    Filter userSentMessages = new Query.FilterPredicate("user", FilterOperator.EQUAL, user);
-    Filter recipientReceivedMessages = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient);
+    // Messages between two people, where logged-in user is the sender
+    Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
 
-    // Messages between two people, where user is the receiver
-    Filter userReceivedMessages = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, user);
-    Filter recipientSentMessages = new Query.FilterPredicate("user", FilterOperator.EQUAL, recipient);
+    // All the messages sent by logged-in user to the other user
+    Filter loggedInUserMessages = CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
 
-    // All the messages sent by user to the other person
-    Filter userMessages = CompositeFilterOperator.and(userSentMessages, recipientReceivedMessages);
-
-    // All the messaged recieved by user sent by the other person
-    Filter recipientMessages = CompositeFilterOperator.and(recipientSentMessages, userReceivedMessages);
+    // Messages between two people, where logged-in user is the recipient
+    Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
+    Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
+    
+    // All the messages recieved by logged-in user sent by the other user
+    Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
     // All the messages between the two users
-    Filter directMessages = CompositeFilterOperator.or(userMessages, recipientMessages);
+    Filter directMessages = CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
 
     Query query =
         new Query("Message")
