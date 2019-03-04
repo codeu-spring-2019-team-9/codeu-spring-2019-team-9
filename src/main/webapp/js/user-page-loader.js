@@ -56,7 +56,7 @@ function fetchMessages() {
       .then((messages) => {
         const messagesContainer = document.getElementById('message-container');
         if (messages.length == 0) {
-          messagesContainer.innerHTML = '<p>This user has no posts yet.</p>';
+          messagesContainer.innerHTML = '<p>There are no messages between you and this user yet. Say hi!</p>';
         } else {
           messagesContainer.innerHTML = '';
         }

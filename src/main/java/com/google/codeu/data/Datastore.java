@@ -53,9 +53,9 @@ public class Datastore {
   }
 
   /**
-   * Gets messages posted by a specific user.
+   * Gets messages received by a specific user.
    *
-   * @return a list of messages posted by the user, or empty list if user has never posted a
+   * @return a list of messages received by the user, or empty list if user has never received a
    *     message. List is sorted by time descending.
    */
   public List<Message> getMessages(String recipient) {
@@ -84,11 +84,6 @@ public class Datastore {
       }
     }
 
-    // test if sender/reciever messages are fetched
-    for (int i = 0; i < messages.size(); i++) {
-      System.out.println(messages.get(i));
-    }
-
     return messages;
   }
 
@@ -96,7 +91,7 @@ public class Datastore {
    * Gets messages sent between user and a recipient.
    *
    * @return a list of messages sent between the user and a recipient, or empty list if user or recipient has never sent a
-   *     message to each other. List is sorted by time descending.
+   *     message to each other. List is sorted by time ascending.
    */
 
   // TODO: Finish this feature
@@ -123,7 +118,7 @@ public class Datastore {
     Query query =
         new Query("Message")
             .setFilter(directMessages)
-            .addSort("timestamp", SortDirection.DESCENDING);
+            .addSort("timestamp", SortDirection.ASCENDING);
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity entity : results.asIterable()) {
@@ -142,11 +137,6 @@ public class Datastore {
         System.err.println(entity.toString());
         e.printStackTrace();
       }
-    }
-
-    // test if sender/reciever messages are fetched
-    for (int i = 0; i < messages.size(); i++) {
-      System.out.println(messages.get(i));
     }
 
     return messages;

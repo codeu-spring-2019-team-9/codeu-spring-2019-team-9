@@ -40,27 +40,29 @@ public class MessageServlet extends HttpServlet {
   }
 
   /**
-   * Responds with a JSON representation of {@link Message} data for a specific user. Responds with
-   * an empty array if the user is not provided.
+   * Responds with a JSON representation of {@link Message} data for a user/recipient pair. Responds with
+   * an empty array if the user is not logged in or recipient is not provided.
    */
-  // TODO: Get messsages between two users
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     response.setContentType("application/json");
-    String user = request.getParameter("user");
-    //String recipient = request.getParameter("recipient");
-    System.out.println("user: " + user);
-    //System.out.println("recipient: " + recipient);
 
-    // || recipient == null || recipient.equals("")
-    if (user == null || user.equals("")) {
+    // Get user and recipient
+    String recipient = request.getParameter("user");
+    String currentUser = null;
+    UserService userService = UserServiceFactory.getUserService();
+    if (userService.isUserLoggedIn()) {
+      currentUser = userService.getCurrentUser().toString();
+    }
+    
+    if (currentUser == null || currentUser.equals("") || recipient == null || recipient.equals("")) {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
     }
 
-    List<Message> messages = datastore.getMessages(user);
+    List<Message> messages = datastore.getMessagesBetweenTwoUsers(currentUser, recipient);
     Gson gson = new Gson();
     String json = gson.toJson(messages);
 
