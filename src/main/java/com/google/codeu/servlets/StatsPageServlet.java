@@ -10,20 +10,29 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.codeu.data.Datastore;
 import com.google.gson.JsonObject;
+
 /**
- * Handles fetching site statistics. 
+ * Handles fetching site statistics.
  * 
  * This uses the init() function that creates and store a Datastore instance,
  * then doGet() calls the function getTotalMessageCount() in the Datastore.java
  * and create a JSON that countains the message count
  */
-public class StatsPageServlet extends HttpServlet{
+public class StatsPageServlet extends HttpServlet {
   private Datastore datastore;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    datastore = new Datastore();
+    datastore = createDatastore();
+  }
+
+  /*
+   * Instantiates a connection to a datastore. In tests, override this with a
+   * method that returns a fake/mock datastore object.
+   */
+  protected Datastore createDatastore() {
+    return new Datastore();
   }
 
   /**
@@ -31,8 +40,7 @@ public class StatsPageServlet extends HttpServlet{
    */
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     response.setContentType("application/json");
 

@@ -1,23 +1,26 @@
-// Fetch stats and display them in the page.
-function fetchStats(){
-    const url = '/stats';
-    fetch(url).then((response) => {
-      return response.json();
-    }).then((stats) => {
-      const statsContainer = document.getElementById('stats-container');
-      statsContainer.innerHTML = '';
-      const messageCountElement = buildStatElement('Message count: ' + stats.messageCount);
-      statsContainer.appendChild(messageCountElement);
-    });
-  }
+var _statsPromise = null;
 
-  function buildStatElement(statString){
-   const statElement = document.createElement('p');
-   statElement.appendChild(document.createTextNode(statString));
-   return statElement;
+function getOrPrefetchStats() {
+  const url = "/stats";
+  if (_statsPromise == null) {
+    _statsPromise = fetch(url).then(response => { return response.json(); });
   }
+  return _statsPromise;
+}
 
-  // Fetch data and populate the UI of the page.
-  function buildUI(){
-   fetchStats();
-  }
+function renderStatsOnPage() {
+  getOrPrefetchStats().then(stats => {
+    const statsContainer = document.getElementById("stats-container");
+    statsContainer.innerHTML = "";
+    const messageCountElement = buildStatElement(
+      "Message count: " + stats.messageCount
+    );
+    statsContainer.appendChild(messageCountElement);
+  });
+}
+
+function buildStatElement(statString) {
+  const statElement = document.createElement('p');
+  statElement.textContent = statString;
+  return statElement;
+}
