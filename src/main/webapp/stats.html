@@ -5,11 +5,9 @@
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/stats.css" />
     <script src="/js/stats-loader.js"></script>
-    <script type='text/javascript'>
-        fetchStats()
-    </script>
+    <script>getOrPrefetchStats();</script>
   </head>
-    <body>
+    <body onload="renderStatsOnPage()">
     <div id="content">
       <h1>Site Statistics</h1>
       <hr />

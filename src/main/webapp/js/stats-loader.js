@@ -1,17 +1,22 @@
-function fetchStats() {
+var _statsPromise = null;
+
+function getOrPrefetchStats() {
   const url = "/stats";
-  fetch(url)
-    .then(response => {
-      return response.json();
-    })
-    .then(stats => {
-      const statsContainer = document.getElementById("stats-container");
-      statsContainer.innerHTML = "";
-      const messageCountElement = buildStatElement(
-        "Message count: " + stats.messageCount
-      );
-      statsContainer.appendChild(messageCountElement);
-    });
+  if (_statsPromise == null) {
+    _statsPromise = fetch(url).then(response => { return response.json(); });
+  }
+  return _statsPromise;
+}
+
+function renderStatsOnPage() {
+  getOrPrefetchStats().then(stats => {
+    const statsContainer = document.getElementById("stats-container");
+    statsContainer.innerHTML = "";
+    const messageCountElement = buildStatElement(
+      "Message count: " + stats.messageCount
+    );
+    statsContainer.appendChild(messageCountElement);
+  });
 }
 
 function buildStatElement(statString) {
@@ -19,4 +24,3 @@ function buildStatElement(statString) {
   statElement.textContent = statString;
   return statElement;
 }
-
