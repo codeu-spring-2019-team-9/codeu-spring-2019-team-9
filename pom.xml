@@ -59,6 +59,19 @@ limitations under the License.
       <artifactId>google-cloud-datastore</artifactId>
       <version>1.52.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.google.flogger</groupId>
+      <artifactId>flogger</artifactId>
+      <version>0.3.1</version>
+  </dependency>
+
+  <dependency>
+      <groupId>com.google.flogger</groupId>
+      <artifactId>flogger-system-backend</artifactId>
+      <version>0.3.1</version>
+      <scope>runtime</scope>
+  </dependency>
   </dependencies>
 
   <build>

@@ -16,6 +16,7 @@
 
 package com.google.codeu.servlets;
 
+import java.util.Optional;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
@@ -49,20 +50,26 @@ public class MessageServlet extends HttpServlet {
     response.setContentType("application/json");
 
     // Get logged-in user and other user
-    String loggedInUser = null;
-    String otherUser = request.getParameter("user");
+    Optional<String> loggedInUser = Optional.ofNullable(null);
+    Optional<String> otherUser = Optional.ofNullable(request.getParameter("user"));
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
-      loggedInUser = userService.getCurrentUser().toString();
+      loggedInUser = Optional.ofNullable(userService.getCurrentUser().getEmail());
     }
     
-    if (loggedInUser == null || loggedInUser.equals("") || otherUser == null || otherUser.equals("")) {
-      // Request is invalid, return empty array
-      response.getWriter().println("[]");
+    // Request is invalid, return empty array
+    if (loggedInUser.orElse("").isEmpty()) {
+      response.setStatus(401);
+      response.getWriter().println("Error: Unauthorized access");
+      return;
+    }
+    if (otherUser.orElse("").isEmpty()) {
+      response.setStatus(400);
+      response.getWriter().println("Error: Missing required query parameter 'user'");
       return;
     }
 
-    List<Message> messages = datastore.getMessagesBetweenTwoUsers(loggedInUser, otherUser);
+    List<Message> messages = datastore.getMessagesBetweenTwoUsers(loggedInUser.get(), otherUser.get());
     Gson gson = new Gson();
     String json = gson.toJson(messages);
 

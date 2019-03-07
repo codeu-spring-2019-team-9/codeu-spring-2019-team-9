@@ -16,6 +16,8 @@
 
 package com.google.codeu.data;
 
+import com.google.common.flogger.FluentLogger;
+import com.google.appengine.api.datastore.PropertyContainer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -28,6 +30,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
@@ -35,10 +38,25 @@ import com.google.appengine.api.datastore.FetchOptions;
 /** Provides access to the data stored in Datastore. */
 public class Datastore {
 
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private DatastoreService datastore;
 
   public Datastore() {
     datastore = DatastoreServiceFactory.getDatastoreService();
+  }
+
+  private Optional<String> getStringProperty(PropertyContainer container, String propertyName) {
+    if (!container.hasProperty(propertyName)) {
+      return Optional.empty();
+    }
+
+    String value = null;
+    try {
+       value = (String) container.getProperty(propertyName);
+    } catch (ClassCastException wrongType) {
+        logger.atSevere().withCause(wrongType).log("Property \"" + propertyName + "\" exists but is not a String.");
+    }
+    return Optional.ofNullable(value);
   }
 
   /** Stores the Message in Datastore. */
@@ -50,41 +68,6 @@ public class Datastore {
     messageEntity.setProperty("recipient", message.getRecipient());
 
     datastore.put(messageEntity);
-  }
-
-  /**
-   * Gets messages received by a specific user.
-   *
-   * @return a list of messages received by the user, or empty list if user has never received a
-   *     message. List is sorted by time descending.
-   */
-  public List<Message> getMessages(String recipient) {
-    List<Message> messages = new ArrayList<>();
-
-    Query query =
-        new Query("Message")
-            .setFilter(new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient))
-            .addSort("timestamp", SortDirection.DESCENDING);
-    PreparedQuery results = datastore.prepare(query);
-
-    for (Entity entity : results.asIterable()) {
-      try {
-        String idString = entity.getKey().getName();
-        UUID id = UUID.fromString(idString);
-        String text = (String) entity.getProperty("text");
-        long timestamp = (long) entity.getProperty("timestamp");
-        String user = (String) entity.getProperty("user");
-        Message message = new Message(id, user, text, timestamp, recipient);
-
-        messages.add(message);
-      } catch (Exception e) {
-        System.err.println("Error reading message.");
-        System.err.println(entity.toString());
-        e.printStackTrace();
-      }
-    }
-
-    return messages;
   }
 
   /**
@@ -113,6 +96,7 @@ public class Datastore {
     // All the messages between the two users
     Filter directMessages = CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
 
+    // Sort in the ascending order so that most recent messages appear last
     Query query =
         new Query("Message")
             .setFilter(directMessages)
@@ -120,21 +104,23 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity entity : results.asIterable()) {
-      try {
-        String idString = entity.getKey().getName();
-        UUID id = UUID.fromString(idString);
-        String text = (String) entity.getProperty("text");
-        long timestamp = (long) entity.getProperty("timestamp");
-        String sender = (String) entity.getProperty("user");
-        String receiver = (String) entity.getProperty("receiver");
-        Message message = new Message(id, sender, text, timestamp, receiver);
 
-        messages.add(message);
-      } catch (Exception e) {
+      String idString = null;
+      try {
+        idString = entity.getKey().getName();
+      } catch (NullPointerException e) {
         System.err.println("Error reading message.");
         System.err.println(entity.toString());
         e.printStackTrace();
       }
+
+      UUID id = UUID.fromString(idString);
+      String text = (String) getStringProperty(entity, "text").orElse("");
+      long timestamp = (long) entity.getProperty("timestamp");
+      String sender = (String) entity.getProperty("user");
+      String receiver = (String) entity.getProperty("receiver");
+      Message message = new Message(id, sender, text, timestamp, receiver);
+      messages.add(message);
     }
 
     return messages;
