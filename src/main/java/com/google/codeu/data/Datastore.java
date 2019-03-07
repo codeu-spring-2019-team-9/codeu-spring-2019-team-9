@@ -16,16 +16,21 @@
 
 package com.google.codeu.data;
 
+import com.google.common.flogger.FluentLogger;
+import com.google.appengine.api.datastore.PropertyContainer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
@@ -33,10 +38,25 @@ import com.google.appengine.api.datastore.FetchOptions;
 /** Provides access to the data stored in Datastore. */
 public class Datastore {
 
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private DatastoreService datastore;
 
   public Datastore() {
     datastore = DatastoreServiceFactory.getDatastoreService();
+  }
+
+  private Optional<String> getStringProperty(PropertyContainer container, String propertyName) {
+    if (!container.hasProperty(propertyName)) {
+      return Optional.empty();
+    }
+
+    String value = null;
+    try {
+       value = (String) container.getProperty(propertyName);
+    } catch (ClassCastException wrongType) {
+        logger.atSevere().withCause(wrongType).log("Property \"" + propertyName + "\" exists but is not a String.");
+    }
+    return Optional.ofNullable(value);
   }
 
   /** Stores the Message in Datastore. */
@@ -51,35 +71,56 @@ public class Datastore {
   }
 
   /**
-   * Gets messages posted by a specific user.
+   * Gets messages sent between the logged-in user and another user.
    *
-   * @return a list of messages posted by the user, or empty list if user has never posted a
-   *     message. List is sorted by time descending.
+   * @return a list of messages sent between the logged-in user and another user, or empty list
+   * if logged-in user or other user have never sent a message to each other. List is sorted by time ascending.
    */
-  public List<Message> getMessages(String user) {
+  public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
     List<Message> messages = new ArrayList<>();
 
+    // Messages between two people, where logged-in user is the sender
+    Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
+
+    // All the messages sent by logged-in user to the other user
+    Filter loggedInUserMessages = CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
+
+    // Messages between two people, where logged-in user is the recipient
+    Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
+    Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
+    
+    // All the messages recieved by logged-in user sent by the other user
+    Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
+
+    // All the messages between the two users
+    Filter directMessages = CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
+
+    // Sort in the ascending order so that most recent messages appear last
     Query query =
         new Query("Message")
-            .setFilter(new Query.FilterPredicate("user", FilterOperator.EQUAL, user))
-            .addSort("timestamp", SortDirection.DESCENDING);
+            .setFilter(directMessages)
+            .addSort("timestamp", SortDirection.ASCENDING);
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity entity : results.asIterable()) {
-      try {
-        String idString = entity.getKey().getName();
-        UUID id = UUID.fromString(idString);
-        String text = (String) entity.getProperty("text");
-        long timestamp = (long) entity.getProperty("timestamp");
-        String recipient = (String) entity.getProperty("recipient");
-        Message message = new Message(id, user, text, timestamp, recipient);
 
-        messages.add(message);
-      } catch (Exception e) {
+      String idString = null;
+      try {
+        idString = entity.getKey().getName();
+      } catch (NullPointerException e) {
         System.err.println("Error reading message.");
         System.err.println(entity.toString());
         e.printStackTrace();
       }
+
+      UUID id = UUID.fromString(idString);
+      String text = (String) getStringProperty(entity, "text").orElse("");
+      long timestamp = (long) entity.getProperty("timestamp");
+      String sender = (String) entity.getProperty("user");
+      String receiver = (String) entity.getProperty("receiver");
+      Message message = new Message(id, sender, text, timestamp, receiver);
+      messages.add(message);
     }
 
     return messages;

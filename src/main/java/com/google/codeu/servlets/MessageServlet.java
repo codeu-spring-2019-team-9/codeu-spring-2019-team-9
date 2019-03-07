@@ -16,6 +16,7 @@
 
 package com.google.codeu.servlets;
 
+import java.util.Optional;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
@@ -40,23 +41,35 @@ public class MessageServlet extends HttpServlet {
   }
 
   /**
-   * Responds with a JSON representation of {@link Message} data for a specific user. Responds with
-   * an empty array if the user is not provided.
+   * Responds with a JSON representation of {@link Message} data for logged-in user and another user. Responds with
+   * an empty array if the user is not logged in or another user is not provided.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     response.setContentType("application/json");
 
-    String user = request.getParameter("user");
-
-    if (user == null || user.equals("")) {
-      // Request is invalid, return empty array
-      response.getWriter().println("[]");
+    // Get logged-in user and other user
+    Optional<String> loggedInUser = Optional.ofNullable(null);
+    Optional<String> otherUser = Optional.ofNullable(request.getParameter("user"));
+    UserService userService = UserServiceFactory.getUserService();
+    if (userService.isUserLoggedIn()) {
+      loggedInUser = Optional.ofNullable(userService.getCurrentUser().getEmail());
+    }
+    
+    // Request is invalid, return empty array
+    if (loggedInUser.orElse("").isEmpty()) {
+      response.setStatus(401);
+      response.getWriter().println("Error: Unauthorized access");
+      return;
+    }
+    if (otherUser.orElse("").isEmpty()) {
+      response.setStatus(400);
+      response.getWriter().println("Error: Missing required query parameter 'user'");
       return;
     }
 
-    List<Message> messages = datastore.getMessages(user);
+    List<Message> messages = datastore.getMessagesBetweenTwoUsers(loggedInUser.get(), otherUser.get());
     Gson gson = new Gson();
     String json = gson.toJson(messages);
 
@@ -77,6 +90,7 @@ public class MessageServlet extends HttpServlet {
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.none());
     String recipient = request.getParameter("recipient");
 
+    System.out.println(recipient);
     Message message = new Message(user, text, recipient);
     datastore.storeMessage(message);
 
