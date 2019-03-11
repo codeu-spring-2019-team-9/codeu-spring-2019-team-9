@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
+/*
+  Setting our title theme */
+title {
+    font-family: Futura-PT;
+    font-stretch: condensed;
+    font-kerning: normal;
+    text-align: right;
+    /* background-image: url("https://mir-s3-cdn-cf.behance.net/project_modules/1400/a4b55761858317.5a7c23244e1b0.jpg") ;
+    background-attachment: scroll ;
+    */
+}
 /* Remove default styling from the body tag. */
 body {
+    background-color: cornsilk;
   padding: 0;
   margin: 0;
 }
@@ -28,10 +40,19 @@ body {
 
 /* Make the main content look like a card. */
 .content {
-    border: 1px solid black;
+    border: 2px solid black;
+    fill: cornsilk;
     margin-top: 15px;
     padding: 16px;
-    border-radius: 8px;
+    /* border-radius: 0px; */
+}
+
+/*
+  Text styling and alignment */
+.content {
+    font-family: Helvetica;
+    font-kerning: normal;
+    text-align: left;
 }
 
 /* Remove bullet points from navigation bar. */
