@@ -1,0 +1,14 @@
+steps:
+- name: maven:3.6.0-jdk-11-slim
+  entrypoint: 'mvn'
+  args: ['install']
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'build',
+      '-t',
+      'gcr.io/sp19-codeu-9-3673/github.com/codeu-spring-2019-team-9/codeu-spring-2019-team-9',
+      '.'
+    ]
+    # This is to save the container images
+images: ['gcr.io/sp19-codeu-9-3673/github.com/codeu-spring-2019-team-9/codeu-spring-2019-team-9']
