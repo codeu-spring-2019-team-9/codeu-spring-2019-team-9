@@ -15,19 +15,10 @@
  */
 
 /*
-  Setting our title theme */
-title {
-    font-family: Futura-PT;
-    font-stretch: condensed;
-    font-kerning: normal;
-    text-align: right;
-    /* background-image: url("https://mir-s3-cdn-cf.behance.net/project_modules/1400/a4b55761858317.5a7c23244e1b0.jpg") ;
-    background-attachment: scroll ;
-    */
-}
+
 /* Remove default styling from the body tag. */
 body {
-    background-color: cornsilk;
+    background-color: #FFF1D0;
   padding: 0;
   margin: 0;
 }
@@ -40,8 +31,8 @@ body {
 
 /* Make the main content look like a card. */
 .content {
-    border: 2px solid black;
-    fill: cornsilk;
+    border:# 2px solid black;
+    fill: FFF1D0;
     margin-top: 15px;
     padding: 16px;
     /* border-radius: 0px; */
@@ -65,4 +56,11 @@ nav ul {
 nav li {
   display: inline-block;
   margin-right: 10px
+}
+
+.main {
+    font-family: Futura-PT, sans-serif;
+    font-stretch: condensed;
+    font-kerning: normal;
+    text-align: right;
 }
