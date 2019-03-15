@@ -67,10 +67,10 @@ limitations under the License.
     </dependency>
 
     <dependency>
-        <groupId>com.google.flogger</groupId>
-        <artifactId>flogger-system-backend</artifactId>
-        <version>0.3.1</version>
-        <scope>runtime</scope>
+      <groupId>com.google.flogger</groupId>
+      <artifactId>flogger-system-backend</artifactId>
+      <version>0.3.1</version>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
