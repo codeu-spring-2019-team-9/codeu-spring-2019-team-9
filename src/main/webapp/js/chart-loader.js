@@ -90,20 +90,7 @@
         return response.json();
       })
       .then((msgJson) => {
-        var msgData = new google.visualization.DataTable();
-        //define columns for the DataTable instance
-        msgData.addColumn('date', 'Date');
-        msgData.addColumn('number', 'Message Count');
-        for (i = 0; i < msgJson.length; i++) {
-            msgRow = [];
-            var timestampAsDate = new Date (msgJson[i].timestamp);
-            var totalMessages = i + 1;
-            //TODO add the formatted values to msgRow array by using JS' push method
-            //console.log(msgRow);
-            msgData.addRow(msgRow);
-        }
-        //console.log(msgData);
-        drawChart(msgData);
+        console.log(msgJson);
       });
     }
     return _messageChartPromise;
