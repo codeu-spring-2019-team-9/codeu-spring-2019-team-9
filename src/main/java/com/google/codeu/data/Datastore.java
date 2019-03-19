@@ -100,11 +100,19 @@ public class Datastore {
     // people may include implicit context/reference to previously sent messages,
     // and this order makes the chronology of the conversation and context
     // more intuitive and understandable in the messages list page. 
-    Query query =
+    Query query;
+    if (loggedInUser == null ||otherUser == null || loggedInUser.isEmpty() || otherUser.isEmpty()) {
+      query = 
+        new Query("Message")
+          .addSort("timestamp", SortDirection.ASCENDING);
+    } else {
+      query = 
         new Query("Message")
             .setFilter(directMessages)
             .addSort("timestamp", SortDirection.ASCENDING);
+    }
     PreparedQuery results = datastore.prepare(query);
+
 
     for (Entity entity : results.asIterable()) {
       String idString = entity.getKey().getName();
@@ -126,5 +134,4 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
     return results.countEntities(FetchOptions.Builder.withDefaults());
   }
-
 }
