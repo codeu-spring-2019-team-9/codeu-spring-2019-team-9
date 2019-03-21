@@ -16,9 +16,6 @@
 
 package com.google.codeu.servlets;
 
-import java.util.Optional;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.Message;
 import com.google.gson.Gson;
@@ -30,8 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 
 public class ChartServlet extends HttpServlet {
 
@@ -60,7 +55,7 @@ public class ChartServlet extends HttpServlet {
 
     response.setContentType("application/json");
 
-    List<Message> messages = datastore.getMessagesBetweenTwoUsers(null, null);
+    List<Message> messages = datastore.getAllMessages();
     Gson gson = new Gson();
     String json = gson.toJson(messages);
 

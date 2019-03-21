@@ -134,4 +134,27 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
     return results.countEntities(FetchOptions.Builder.withDefaults());
   }
+  public List<Message> getAllMessages() {
+    List<Message> messages = new ArrayList<>();
+    
+    Query query = 
+        new Query("Message")
+          .addSort("timestamp", SortDirection.ASCENDING);
+    
+    PreparedQuery results = datastore.prepare(query);
+
+
+    for (Entity entity : results.asIterable()) {
+      String idString = entity.getKey().getName();
+      UUID id = UUID.fromString(idString);
+      String text = getStringProperty(entity, "text").orElse("");
+      long timestamp = (long) entity.getProperty("timestamp");
+      String sender = (String) entity.getProperty("user");
+      String receiver = (String) entity.getProperty("recipient");
+      Message message = new Message(id, sender, text, timestamp, receiver);
+      messages.add(message);
+    }
+
+    return messages;
+  }
 }
