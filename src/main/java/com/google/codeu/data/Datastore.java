@@ -27,10 +27,13 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.repackaged.com.google.api.client.util.Strings;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
+
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
@@ -100,32 +103,13 @@ public class Datastore {
     // people may include implicit context/reference to previously sent messages,
     // and this order makes the chronology of the conversation and context
     // more intuitive and understandable in the messages list page. 
-    Query query;
-    if (loggedInUser == null ||otherUser == null || loggedInUser.isEmpty() || otherUser.isEmpty()) {
-      query = 
-        new Query("Message")
-          .addSort("timestamp", SortDirection.ASCENDING);
-    } else {
-      query = 
-        new Query("Message")
-            .setFilter(directMessages)
-            .addSort("timestamp", SortDirection.ASCENDING);
-    }
+    Query query = hasUserRestriction(loggedInUser, otherUser)
+                        ? createMessageQueryWithUserFilter(loggedInUser, otherUser, directMessages)
+                        : createPublicMessageQuery();
+    
     PreparedQuery results = datastore.prepare(query);
 
-
-    for (Entity entity : results.asIterable()) {
-      String idString = entity.getKey().getName();
-      UUID id = UUID.fromString(idString);
-      String text = getStringProperty(entity, "text").orElse("");
-      long timestamp = (long) entity.getProperty("timestamp");
-      String sender = (String) entity.getProperty("user");
-      String receiver = (String) entity.getProperty("recipient");
-      Message message = new Message(id, sender, text, timestamp, receiver);
-      messages.add(message);
-    }
-
-    return messages;
+    return entityToMessage(messages, results);
   }
 
   /** Returns the total number of messages for all users. */
@@ -142,8 +126,10 @@ public class Datastore {
           .addSort("timestamp", SortDirection.ASCENDING);
     
     PreparedQuery results = datastore.prepare(query);
-
-
+    
+    return entityToMessage(messages, results);
+  }
+  private List<Message> entityToMessage(List<Message> messages, PreparedQuery results) {
     for (Entity entity : results.asIterable()) {
       String idString = entity.getKey().getName();
       UUID id = UUID.fromString(idString);
@@ -154,7 +140,23 @@ public class Datastore {
       Message message = new Message(id, sender, text, timestamp, receiver);
       messages.add(message);
     }
-
     return messages;
-  }
+ }
+
+ private boolean hasUserRestriction(String loggedInUser, String otherUser) {
+   if (!Strings.isNullOrEmpty(loggedInUser) && !Strings.isNullOrEmpty(otherUser)) {
+     return false;
+   }
+   return true;
+ }
+ private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser, Filter directMessages) {
+   return new Query("Message")
+   .setFilter(directMessages)
+   .addSort("timestamp", SortDirection.ASCENDING);
+ }
+ private Query createPublicMessageQuery() {
+   return new Query("Message")
+   .addSort("timestamp", SortDirection.ASCENDING);
+ }
+
 }

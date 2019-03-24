@@ -27,6 +27,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+/*
+*The Chart Servlet passes the data as a response to a GET request.
+*/
 
 public class ChartServlet extends HttpServlet {
 
