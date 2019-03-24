@@ -40,6 +40,16 @@
   margin: 5px;
 }
 
+/* Give images in the message body a contained size
+  so they aren't too big */
+.message-body img {
+  display: block;
+  margin-top: 25px;
+  max-width: 250px;
+  max-height: 300px;
+  box-sizing: border-box;
+}
+
 /* Use this to hide certain elements like forms if the
    user is not logged in or viewing their own page. */
 .hidden {
