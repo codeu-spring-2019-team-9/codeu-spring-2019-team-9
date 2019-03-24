@@ -23,6 +23,7 @@ limitations under the License.
     <link rel="stylesheet" href="/css/user-page.css">
     <script src="/js/user-page-loader.js"></script>
   </head>
+
   <body onload="buildUI();">
     <nav>
       <ul id="navigation">
@@ -31,6 +32,25 @@ limitations under the License.
     </nav>
     <h1 id="page-title">User Page</h1>
 
+    <form id="user-page-form" action="/api/user-form-data" method="POST">
+      <fieldset>
+        <legend>How many cups of Tea did you drink today?</legend>
+        Green Tea:<br>
+        <input type="number" name="greenTea" value="0"><br>
+        White Tea:<br>
+        <input type="number" name="whiteTea" value="0"><br>
+        Yellow Tea:<br>
+        <input type="number" name="yellowYea" value="0"><br>
+        Oolong Tea:<br>
+        <input type="number" name="oolongTea" value="0"><br>
+        Black Tea:<br>
+        <input type="number" name="blackTea" value="0"><br>
+        Matcha Tea:<br>
+        <input type="number" name="matchaTea" value="0"><br>
+        <input type="submit" value="Save">
+      </fieldset>
+    </form> 
+    
     <form id="message-form" action="/messages" method="POST" class="hidden">
       Enter a new message:
       <br/>

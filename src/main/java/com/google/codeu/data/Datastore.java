@@ -157,4 +157,22 @@ public class Datastore {
 
     return messages;
   }
+
+
+  /**
+   * This is to create an user form data to put in the datastore
+   * TODO: Replace getUser() with UUID and use userChart.getId().toString()
+   */
+  public void storeUserFormData(Tea userChart) {
+    
+    Entity userFormData = new Entity("UserFormData", userChart.getUser());
+    userFormData.setProperty("greenTea", userChart.getGreenTea());
+    userFormData.setProperty("whiteTea", userChart.getWhiteTea());
+    userFormData.setProperty("yellowYea", userChart.getYellowTea());
+    userFormData.setProperty("oolongTea", userChart.getOolongTea());
+    userFormData.setProperty("blackTea", userChart.getBlackTea());
+    userFormData.setProperty("matchaTea", userChart.getMatchaTea());
+
+    datastore.put(userFormData);
+  }
 }
