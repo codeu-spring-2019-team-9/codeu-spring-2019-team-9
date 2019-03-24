@@ -54,7 +54,7 @@ public class MessageServlet extends HttpServlet {
     response.setContentType("application/json");
 
     // Get logged-in user and other user
-    Optional<String> loggedInUser = Optional.ofNullable(null);
+    Optional<String> loggedInUser = Optional.empty();
     Optional<String> otherUser = Optional.ofNullable(request.getParameter("user"));
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
@@ -62,6 +62,7 @@ public class MessageServlet extends HttpServlet {
     }
 
     // Request is invalid, return empty array
+    // TODO: Make errors JSON objects
     if (loggedInUser.orElse("").isEmpty()) {
       response.setStatus(401);
       response.getWriter().println("Error: Unauthorized access");

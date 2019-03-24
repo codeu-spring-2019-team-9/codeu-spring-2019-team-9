@@ -18,4 +18,4 @@ indexes:
   - name: user
   - name: recipient
   - name: timestamp
-    direction: desc
+    direction: asc
