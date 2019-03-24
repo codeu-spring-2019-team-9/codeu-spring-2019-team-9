@@ -16,37 +16,73 @@
 
 package com.google.codeu.servlets;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.google.appengine.api.datastore.DatastoreFailureException;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.google.codeu.data.Datastore;
-import com.google.codeu.data.Message;
-import com.google.gson.Gson;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
 
-public class UserFormServlet extends HttpServlet {
 
+public class UserFormServlet extends HttpServlet {
   private Datastore datastore;
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-  
-   
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    datastore = createDatastore();
+  }
+
+  /*
+   * Instantiates a connection to a datastore. In tests, override this with a
+   * method that returns a fake/mock datastore object.
+   */
+  protected Datastore createDatastore() {
+    return datastore;
   }
   
+  @Override
+  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+  
+    // Create a map of the httpParameters that we want and run it through jSoup
+    Map<String, String> blogContent =
+        req.getParameterMap()
+            .entrySet()
+            .stream()
+            .filter(a -> a.getKey().startsWith("blogContent_"))
+            .collect(
+                Collectors.toMap(
+                    p -> p.getKey(), p -> Jsoup.clean(p.getValue()[0], Whitelist.basic())));
+  
+    Entity post = new Entity("Blogpost"); // create a new entity
+  
+    post.setProperty("title", blogContent.get("blogContent_title"));
+    post.setProperty("author", blogContent.get("blogContent_author"));
+    post.setProperty("body", blogContent.get("blogContent_description"));
+    post.setProperty("timestamp", new Date().getTime());
+  
+    try {
+      datastore.put(post); // store the entity
+  
+      // Send the user to the confirmation page with personalised confirmation text
+      String confirmation = "Post with title " + blogContent.get("blogContent_title") + " created.";
+  
+      req.setAttribute("confirmation", confirmation);
+      req.getRequestDispatcher("/confirm.jsp").forward(req, resp);
+    } catch (DatastoreFailureException e) {
+      throw new ServletException("Datastore error", e);
+    }
+    
+  }
+  
+
 
 }

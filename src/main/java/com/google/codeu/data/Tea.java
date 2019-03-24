@@ -21,30 +21,22 @@ import java.util.UUID;
 /** A single message posted by a user. */
 public class Tea {
     
-    private String user;
     private int greenTea;
     private int whiteTea;
     private int yellowTea;
     private int oolongTea;
     private int blackTea;
     private int matchaTea;
-
-    /**
-     * This is using the username as the identifier, but should consider using UUID as the identifier
-     */
-  //use the String user for now, but consider replacing it with UUID
-  public Tea(String user, int greenTea, int whiteTea, int yellowTea, int oolongTea, int blackTea, int matchaTea) {
-      this.user = user;
+    
+    
+    
+    public Tea(int greenTea, int whiteTea, int yellowTea, int oolongTea, int blackTea, int matchaTea) {
       this.greenTea = greenTea;
       this.whiteTea = whiteTea;
       this.yellowTea = yellowTea;
       this.oolongTea = oolongTea;
       this.blackTea = blackTea;
       this.matchaTea = matchaTea;
-  }
-
-  public String getUser() {
-    return user;
   }
   public int getGreenTea() {
       return greenTea;
