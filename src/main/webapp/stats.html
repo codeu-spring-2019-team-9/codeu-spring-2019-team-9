@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Stats</title>
-    <link rel="stylesheet" href="/css/main.css" />
-    <link rel="stylesheet" href="/css/stats.css" />
-    <script src="/js/stats-loader.js"></script>
-    <script>getOrPrefetchStats();</script>
-  </head>
-    <body onload="renderStatsOnPage()">
-    <div id="content">
-      <h1>Site Statistics</h1>
-      <hr />
-      <div id="stats-container">Loading...</div>
-    </div>
-  </body>
+
+<head>
+  <title>Stats</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/stats.css" />
+  <script src="/js/stats-loader.js"></script>
+  <script>
+    getOrPrefetchStats();
+  </script>
+</head>
+
+<body onload="renderStatsOnPage()">
+  <div id="content">
+    <h1>Site Statistics</h1>
+    <hr />
+    <div id="stats-container">Loading...</div>
+  </div>
+</body>
+
 </html>

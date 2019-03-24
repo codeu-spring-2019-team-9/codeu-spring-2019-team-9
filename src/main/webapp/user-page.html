@@ -16,31 +16,34 @@ limitations under the License.
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>User Page</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/user-page.css">
-    <script src="/js/user-page-loader.js"></script>
-  </head>
-  <body onload="buildUI();">
-    <nav>
-      <ul id="navigation">
-        <li><a href="/">Home</a></li>
-      </ul>
-    </nav>
-    <h1 id="page-title">User Page</h1>
 
-    <form id="message-form" action="/messages" method="POST" class="hidden">
-      Enter a new message:
-      <br/>
-      <textarea name="text" id="message-input"></textarea>
-      <br/>
-      <input type="submit" value="Submit">
+<head>
+  <title>User Page</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/user-page.css">
+  <script src="/js/user-page-loader.js"></script>
+</head>
+
+<body onload="buildUI();">
+  <nav>
+    <ul id="navigation">
+      <li><a href="/">Home</a></li>
+    </ul>
+  </nav>
+  <h1 id="page-title">User Page</h1>
+
+  <form id="message-form" action="/messages" method="POST" class="hidden">
+    Enter a new message:
+    <br/>
+    <textarea name="text" id="message-input"></textarea>
+    <br/>
+    <input type="submit" value="Submit">
     </form>
-    <hr/>
+    <hr />
 
     <div id="message-container">Loading...</div>
 
-  </body>
+</body>
+
 </html>

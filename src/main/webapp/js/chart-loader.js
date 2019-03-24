@@ -4,30 +4,30 @@
 
   var fetchMessageData = function() {
     const url = "/api/chart";
-    if(_messageChartPromise == null) {
+    if (_messageChartPromise == null) {
       _messageChartPromise = fetch(url)
-      .then((response) => { 
-        return response.json();
-      })
-      .then((msgJson) => {
-        var msgData = new google.visualization.DataTable();
-        //define columns for the DataTable instance
-        msgData.addColumn('date', 'Date');
-        msgData.addColumn('number', 'Message Count');
-        for (i = 0; i < msgJson.length; i++) {
+        .then((response) => {
+          return response.json();
+        })
+        .then((msgJson) => {
+          var msgData = new google.visualization.DataTable();
+          //define columns for the DataTable instance
+          msgData.addColumn('date', 'Date');
+          msgData.addColumn('number', 'Message Count');
+          for (i = 0; i < msgJson.length; i++) {
             msgRow = [];
-            var timestampAsDate = new Date (msgJson[i].timestamp);
+            var timestampAsDate = new Date(msgJson[i].timestamp);
             var totalMessages = i + 1;
-            msgRow.push(timestampAsDate,totalMessages);
+            msgRow.push(timestampAsDate, totalMessages);
             //TODO add the formatted values to msgRow array by using JS' push method
             msgData.addRow(msgRow);
-        }
-        var chart = new google.visualization.BarChart(
-          document.getElementById("message_chart")
+          }
+          var chart = new google.visualization.BarChart(
+            document.getElementById("message_chart")
           );
           chart.draw(msgData);
-        return msgJson;
-      });
+          return msgJson;
+        });
     }
     return _messageChartPromise;
   }
