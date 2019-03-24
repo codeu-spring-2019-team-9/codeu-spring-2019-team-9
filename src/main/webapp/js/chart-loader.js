@@ -22,19 +22,16 @@
             //TODO add the formatted values to msgRow array by using JS' push method
             msgData.addRow(msgRow);
         }
-        drawChart(msgData);
+        var chart = new google.visualization.BarChart(
+          document.getElementById("message_chart")
+          );
+          chart.draw(msgData);
         return msgJson;
       });
     }
     return _messageChartPromise;
   }
 
-  var drawChart = function(response) {
-    var chart = new google.visualization.BarChart(
-      document.getElementById("message_chart")
-      );
-      chart.draw(response);
-  }
   var drawBarChart = function() {
     var diffCaffeine = new google.visualization.DataTable();
     //define columns for the DataTable instance
@@ -127,6 +124,5 @@
         drawPieChart();
       });
   };
-
   init();
 })();
