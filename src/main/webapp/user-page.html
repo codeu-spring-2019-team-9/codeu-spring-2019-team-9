@@ -31,25 +31,45 @@ limitations under the License.
       </ul>
     </nav>
     <h1 id="page-title">User Page</h1>
+   
+    <jsp:directive.taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+    <jsp.directive.taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<div class="userForm">
+  <h2>
+    Input what tea you drank today
+  </h2>
 
-    <form id="user-page-form" action="/api/user-form-data" method="POST">
-      <fieldset>
-        <legend>How many cups of Tea did you drink today?</legend>
-        Green Tea:<br>
-        <input type="number" name="greenTea" value="0"><br>
-        White Tea:<br>
-        <input type="number" name="whiteTea" value="0"><br>
-        Yellow Tea:<br>
-        <input type="number" name="yellowYea" value="0"><br>
-        Oolong Tea:<br>
-        <input type="number" name="oolongTea" value="0"><br>
-        Black Tea:<br>
-        <input type="number" name="blackTea" value="0"><br>
-        Matcha Tea:<br>
-        <input type="number" name="matchaTea" value="0"><br>
-        <input type="submit" value="Save">
-      </fieldset>
-    </form> 
+  <form method="POST" action="/api/user-form-data">
+
+    <div>
+      <label for="greenTea">Green Tea</label>
+      <input type="number" name="greenTea" id="greenTea" size="40" value="${fn:escapeXml(tea.greenTea)}" class="form-control" />
+    </div>
+    <div>
+      <label for="whiteTea">White Tea</label>
+      <input type="number" name="whiteTea" id="whiteTea" size="40" value="${fn:escapeXml(tea.whiteTea)}" class="form-control" />
+    </div>
+    <div>
+      <label for="yellowTea">Yellow Tea</label>
+      <input type="number" name="yellowTea" id="yellowTea" size="40" value="${fn:escapeXml(tea.yellowTea)}" class="form-control" />
+    </div>
+    <div>
+      <label for="oolongTea">Oolong Tea</label>
+      <input type="number" name="oolongTea" id="oolongTea" size="40" value="${fn:escapeXml(tea.oolongTea)}" class="form-control" />
+    </div>
+    <div>
+      <label for="blackTea">Black Tea</label>
+      <input type="number" name="blackTea" id="blackTea" size="40" value="${fn:escapeXml(tea.blackTea)}" class="form-control" />
+    </div>
+    <div>
+      <label for="matchaTea">Matcha Tea</label>
+      <input type="number" name="matchaTea" id="matchaTea" size="40" value="${fn:escapeXml(tea.matchaTea)}" class="form-control" />
+    </div>
+
+    <button type="submit">Save</button>
+  </form>
+</div>
+
     
     <form id="message-form" action="/messages" method="POST" class="hidden">
       Enter a new message:

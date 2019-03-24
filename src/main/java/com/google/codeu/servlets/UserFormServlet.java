@@ -16,23 +16,25 @@
 
 package com.google.codeu.servlets;
 
-import com.google.appengine.api.datastore.DatastoreFailureException;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
+import java.io.IOException;
 
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.codeu.data.Datastore;
+import com.google.codeu.data.Tea;
+
 
 
 
 public class UserFormServlet extends HttpServlet {
+  
   private Datastore datastore;
 
   @Override
@@ -46,43 +48,71 @@ public class UserFormServlet extends HttpServlet {
    * method that returns a fake/mock datastore object.
    */
   protected Datastore createDatastore() {
-    return datastore;
+    return new Datastore();
   }
-  
-  @Override
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-  
-    // Create a map of the httpParameters that we want and run it through jSoup
-    Map<String, String> blogContent =
-        req.getParameterMap()
-            .entrySet()
-            .stream()
-            .filter(a -> a.getKey().startsWith("blogContent_"))
-            .collect(
-                Collectors.toMap(
-                    p -> p.getKey(), p -> Jsoup.clean(p.getValue()[0], Whitelist.basic())));
-  
-    Entity post = new Entity("Blogpost"); // create a new entity
-  
-    post.setProperty("title", blogContent.get("blogContent_title"));
-    post.setProperty("author", blogContent.get("blogContent_author"));
-    post.setProperty("body", blogContent.get("blogContent_description"));
-    post.setProperty("timestamp", new Date().getTime());
-  
-    try {
-      datastore.put(post); // store the entity
-  
-      // Send the user to the confirmation page with personalised confirmation text
-      String confirmation = "Post with title " + blogContent.get("blogContent_title") + " created.";
-  
-      req.setAttribute("confirmation", confirmation);
-      req.getRequestDispatcher("/confirm.jsp").forward(req, resp);
-    } catch (DatastoreFailureException e) {
-      throw new ServletException("Datastore error", e);
+
+@Override
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+  UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+      response.sendRedirect("/index.html");
+      return;
     }
-    
+    String user = userService.getCurrentUser().getEmail();
+    int greenTea = Integer.parseInt(request.getParameter("greenTea"));
+    int whiteTea = Integer.parseInt(request.getParameter("whiteTea"));
+    int yellowTea = Integer.parseInt(request.getParameter("yellowTea"));
+    int oolongTea = Integer.parseInt(request.getParameter("oolongTea"));
+    int blackTea = Integer.parseInt(request.getParameter("blackTea"));
+    int matchaTea = Integer.parseInt(request.getParameter("matchaTea"));
+
+    Tea userTeaData = new Tea(user,greenTea,whiteTea,yellowTea,oolongTea,blackTea,matchaTea);
+
+    datastore.storeUserFormData(userTeaData);
   }
+}
   
 
 
-}
+
+  // Entity post = new Entity("userFormData"); // create a new entity
+
+  // post.setProperty("greenTea", blogContent.get("greenTea"));
+  // post.setProperty("whiteTea", blogContent.get("whiteTea"));
+  // post.setProperty("yellowTea", blogContent.get("yellowTea"));
+  // post.setProperty("oolongTea", blogContent.get("oolongTea"));
+  // post.setProperty("blackTea", blogContent.get("blackTea"));
+  // post.setProperty("matchaTea", blogContent.get("matchaTea"));
+
+  // try {
+  //   datastore.put(post); // store the entity
+
+  //   // Send the user to the confirmation page with personalised confirmation text
+  //   String confirmation = "Post with title " + blogContent.get("blogContent_title") + " created.";
+
+  //   req.setAttribute("confirmation", confirmation);
+  //   req.getRequestDispatcher("/confirm.jsp").forward(req, resp);
+  // } catch (DatastoreFailureException e) {
+  //   throw new ServletException("Datastore error", e);
+  // }
+
+
+  
+  // @Override
+  // public void doPost(HttpServletRequest req, HttpServletResponse resp)
+  //     throws ServletException, IOException {
+
+  //   PrintWriter out = resp.getWriter();
+
+  //   out.println(
+  //       "User drinking tea: " 
+  //       + req.getParameter("greenTea") + "green tea" + '\n'
+  //       + req.getParameter("whiteTea") + "white tea" + '\n'
+  //       + req.getParameter("yellowTea") + "yellow Tea" + '\n'
+  //       + req.getParameter("oolongTea") + "oolong Tea" + '\n'
+  //       + req.getParameter("blackTea") + "black Tea" + '\n'
+  //       + req.getParameter("matchaTea")+ "matcha Tea");
+  // }
+
+

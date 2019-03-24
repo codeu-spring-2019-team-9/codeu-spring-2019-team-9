@@ -16,11 +16,12 @@
 
 package com.google.codeu.data;
 
-import java.util.UUID;
+// import java.util.UUID;
 
 /** A single message posted by a user. */
 public class Tea {
     
+    private String userName;
     private int greenTea;
     private int whiteTea;
     private int yellowTea;
@@ -30,31 +31,35 @@ public class Tea {
     
     
     
-    public Tea(int greenTea, int whiteTea, int yellowTea, int oolongTea, int blackTea, int matchaTea) {
-      this.greenTea = greenTea;
+    public Tea(String userName, int greenTea, int whiteTea, int yellowTea, int oolongTea, int blackTea, int matchaTea) {
+        this.userName = userName;
+        this.greenTea = greenTea;
       this.whiteTea = whiteTea;
       this.yellowTea = yellowTea;
       this.oolongTea = oolongTea;
       this.blackTea = blackTea;
       this.matchaTea = matchaTea;
   }
+  public String getUserName() {
+      return this.userName;
+  }
   public int getGreenTea() {
-      return greenTea;
+      return this.greenTea;
   }
   public int getWhiteTea() {
-      return whiteTea;
+      return this.whiteTea;
   }
   public int getYellowTea() {
-      return yellowTea;
+      return this.yellowTea;
   }
   public int getOolongTea() {
-      return oolongTea;
+      return this.oolongTea;
   }
   public int getBlackTea() {
-      return blackTea;
+      return this.blackTea;
   }
   public int getMatchaTea() {
-      return matchaTea;
+      return this.matchaTea;
   }
   public void setGreenTea(int greenTea) {
       this.greenTea = greenTea;
