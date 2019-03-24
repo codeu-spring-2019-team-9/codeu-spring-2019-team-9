@@ -96,7 +96,10 @@ public class Datastore {
     // All the messages between the two users
     Filter directMessages = CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
 
-    // Sort in the ascending order so that most recent messages appear last
+    // Messages are ordered from oldest to newest since messages between
+    // people may include implicit context/reference to previously sent messages,
+    // and this order makes the chronology of the conversation and context
+    // more intuitive and understandable in the messages list page. 
     Query query =
         new Query("Message")
             .setFilter(directMessages)
@@ -104,21 +107,12 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity entity : results.asIterable()) {
-
-      String idString = null;
-      try {
-        idString = entity.getKey().getName();
-      } catch (NullPointerException e) {
-        System.err.println("Error reading message.");
-        System.err.println(entity.toString());
-        e.printStackTrace();
-      }
-
+      String idString = entity.getKey().getName();
       UUID id = UUID.fromString(idString);
-      String text = (String) getStringProperty(entity, "text").orElse("");
+      String text = getStringProperty(entity, "text").orElse("");
       long timestamp = (long) entity.getProperty("timestamp");
       String sender = (String) entity.getProperty("user");
-      String receiver = (String) entity.getProperty("receiver");
+      String receiver = (String) entity.getProperty("recipient");
       Message message = new Message(id, sender, text, timestamp, receiver);
       messages.add(message);
     }
