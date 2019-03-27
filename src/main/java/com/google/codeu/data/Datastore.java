@@ -16,6 +16,7 @@
 
 package com.google.codeu.data;
 
+import com.google.common.base.Preconditions;
 import com.google.common.flogger.FluentLogger;
 import com.google.appengine.api.datastore.PropertyContainer;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -80,8 +81,58 @@ public class Datastore {
    * if logged-in user or other user have never sent a message to each other. List is sorted by time ascending.
    */
   public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
-    List<Message> messages = new ArrayList<>();
+    // Messages are ordered from oldest to newest since messages between
+    // people may include implicit context/reference to previously sent messages,
+    // and this order makes the chronology of the conversation and context
+    // more intuitive and understandable in the messages list page. 
 
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(otherUser), "otherUser is null or empty");
+    
+    Query query = createMessageQueryWithUserFilter(loggedInUser, otherUser);
+                       
+    PreparedQuery results = datastore.prepare(query);
+    return prepareQueryToMesssages(results);
+  }
+
+  /** Returns the total number of messages for all users. */
+  public int getTotalMessageCount() {
+    Query query = new Query("Message");
+    PreparedQuery results = datastore.prepare(query);
+    return results.countEntities(FetchOptions.Builder.withDefaults());
+  }
+  public List<Message> getAllMessages() {
+    Query query = createPublicMessageQuery();
+    PreparedQuery results = datastore.prepare(query);
+    return prepareQueryToMesssages(results);    
+  }
+  private Message entityToMessage(Entity entity) {
+      String idString = entity.getKey().getName();
+      UUID id = UUID.fromString(idString);
+      String text = getStringProperty(entity, "text").orElse("");
+      long timestamp = (long) entity.getProperty("timestamp");
+      String sender = (String) entity.getProperty("user");
+      String receiver = (String) entity.getProperty("recipient");
+      return new Message(id, sender, text, timestamp, receiver);
+  }
+  private List<Message> prepareQueryToMesssages(PreparedQuery query) {
+    List<Message> results = new ArrayList<>();
+    for (Entity entity: query.asIterable()) {
+      results.add(entityToMessage(entity));
+    }
+    return results;
+  }
+
+ private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
+   return new Query("Message")
+   .setFilter(createUserFilter(loggedInUser, otherUser))
+   .addSort("timestamp", SortDirection.ASCENDING);
+ }
+ private Query createPublicMessageQuery() {
+   return new Query("Message")
+   .addSort("timestamp", SortDirection.ASCENDING);
+ }
+ private Filter createUserFilter(String loggedInUser, String otherUser) {
     // Messages between two people, where logged-in user is the sender
     Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
     Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
@@ -97,66 +148,7 @@ public class Datastore {
     Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
     // All the messages between the two users
-    Filter directMessages = CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
-
-    // Messages are ordered from oldest to newest since messages between
-    // people may include implicit context/reference to previously sent messages,
-    // and this order makes the chronology of the conversation and context
-    // more intuitive and understandable in the messages list page. 
-    Query query = hasUserRestriction(loggedInUser, otherUser)
-                        ? createMessageQueryWithUserFilter(loggedInUser, otherUser, directMessages)
-                        : createPublicMessageQuery();
-    
-    PreparedQuery results = datastore.prepare(query);
-
-    return entityToMessage(messages, results);
-  }
-
-  /** Returns the total number of messages for all users. */
-  public int getTotalMessageCount() {
-    Query query = new Query("Message");
-    PreparedQuery results = datastore.prepare(query);
-    return results.countEntities(FetchOptions.Builder.withDefaults());
-  }
-  public List<Message> getAllMessages() {
-    List<Message> messages = new ArrayList<>();
-    
-    Query query = 
-        new Query("Message")
-          .addSort("timestamp", SortDirection.ASCENDING);
-    
-    PreparedQuery results = datastore.prepare(query);
-    
-    return entityToMessage(messages, results);
-  }
-  private List<Message> entityToMessage(List<Message> messages, PreparedQuery results) {
-    for (Entity entity : results.asIterable()) {
-      String idString = entity.getKey().getName();
-      UUID id = UUID.fromString(idString);
-      String text = getStringProperty(entity, "text").orElse("");
-      long timestamp = (long) entity.getProperty("timestamp");
-      String sender = (String) entity.getProperty("user");
-      String receiver = (String) entity.getProperty("recipient");
-      Message message = new Message(id, sender, text, timestamp, receiver);
-      messages.add(message);
-    }
-    return messages;
- }
-
- private boolean hasUserRestriction(String loggedInUser, String otherUser) {
-   if (!Strings.isNullOrEmpty(loggedInUser) && !Strings.isNullOrEmpty(otherUser)) {
-     return false;
-   }
-   return true;
- }
- private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser, Filter directMessages) {
-   return new Query("Message")
-   .setFilter(directMessages)
-   .addSort("timestamp", SortDirection.ASCENDING);
- }
- private Query createPublicMessageQuery() {
-   return new Query("Message")
-   .addSort("timestamp", SortDirection.ASCENDING);
+    return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
  }
 
 }
