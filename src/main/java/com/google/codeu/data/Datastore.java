@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
 
-
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
 
@@ -56,9 +55,10 @@ public class Datastore {
 
     String value = null;
     try {
-       value = (String) container.getProperty(propertyName);
+      value = (String) container.getProperty(propertyName);
     } catch (ClassCastException wrongType) {
-        logger.atSevere().withCause(wrongType).log("Property \"" + propertyName + "\" exists but is not a String.");
+      logger.atSevere().withCause(wrongType).log(
+          "Property \"" + propertyName + "\" exists but is not a String.");
     }
     return Optional.ofNullable(value);
   }
@@ -77,20 +77,22 @@ public class Datastore {
   /**
    * Gets messages sent between the logged-in user and another user.
    *
-   * @return a list of messages sent between the logged-in user and another user, or empty list
-   * if logged-in user or other user have never sent a message to each other. List is sorted by time ascending.
+   * @return a list of messages sent between the logged-in user and another user, or empty list if
+   *     logged-in user or other user have never sent a message to each other. List is sorted by
+   *     time ascending.
    */
   public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
     // Messages are ordered from oldest to newest since messages between
     // people may include implicit context/reference to previously sent messages,
     // and this order makes the chronology of the conversation and context
-    // more intuitive and understandable in the messages list page. 
+    // more intuitive and understandable in the messages list page.
 
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
+    Preconditions.checkArgument(
+        !Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(otherUser), "otherUser is null or empty");
-    
+
     Query query = createMessageQueryWithUserFilter(loggedInUser, otherUser);
-                       
+
     PreparedQuery results = datastore.prepare(query);
     return prepareQueryToMesssages(results);
   }
@@ -101,54 +103,63 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
     return results.countEntities(FetchOptions.Builder.withDefaults());
   }
+
   public List<Message> getAllMessages() {
     Query query = createPublicMessageQuery();
     PreparedQuery results = datastore.prepare(query);
-    return prepareQueryToMesssages(results);    
+    return prepareQueryToMesssages(results);
   }
+
   private Message entityToMessage(Entity entity) {
-      String idString = entity.getKey().getName();
-      UUID id = UUID.fromString(idString);
-      String text = getStringProperty(entity, "text").orElse("");
-      long timestamp = (long) entity.getProperty("timestamp");
-      String sender = (String) entity.getProperty("user");
-      String receiver = (String) entity.getProperty("recipient");
-      return new Message(id, sender, text, timestamp, receiver);
+    String idString = entity.getKey().getName();
+    UUID id = UUID.fromString(idString);
+    String text = getStringProperty(entity, "text").orElse("");
+    long timestamp = (long) entity.getProperty("timestamp");
+    String sender = (String) entity.getProperty("user");
+    String receiver = (String) entity.getProperty("recipient");
+    return new Message(id, sender, text, timestamp, receiver);
   }
+
   private List<Message> prepareQueryToMesssages(PreparedQuery query) {
     List<Message> results = new ArrayList<>();
-    for (Entity entity: query.asIterable()) {
+    for (Entity entity : query.asIterable()) {
       results.add(entityToMessage(entity));
     }
     return results;
   }
 
- private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
-   return new Query("Message")
-   .setFilter(createUserFilter(loggedInUser, otherUser))
-   .addSort("timestamp", SortDirection.ASCENDING);
- }
- private Query createPublicMessageQuery() {
-   return new Query("Message")
-   .addSort("timestamp", SortDirection.ASCENDING);
- }
- private Filter createUserFilter(String loggedInUser, String otherUser) {
+  private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
+    return new Query("Message")
+        .setFilter(createUserFilter(loggedInUser, otherUser))
+        .addSort("timestamp", SortDirection.ASCENDING);
+  }
+
+  private Query createPublicMessageQuery() {
+    return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
+  }
+
+  private Filter createUserFilter(String loggedInUser, String otherUser) {
     // Messages between two people, where logged-in user is the sender
-    Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
-    Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
+    Filter messagesSentByLoggedInUser =
+        new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesReceivedByOtherUser =
+        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
 
     // All the messages sent by logged-in user to the other user
-    Filter loggedInUserMessages = CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
+    Filter loggedInUserMessages =
+        CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
 
     // Messages between two people, where logged-in user is the recipient
-    Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
-    Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
-    
+    Filter messagesSentByOtherUser =
+        new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
+    Filter messagesReceivedByLoggedInUser =
+        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
+
     // All the messages recieved by logged-in user sent by the other user
-    Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
+    Filter otherUserMessages =
+        CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
     // All the messages between the two users
     return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
- }
-
+  }
 }
