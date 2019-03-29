@@ -22,16 +22,22 @@
             //TODO add the formatted values to msgRow array by using JS' push method
             msgData.addRow(msgRow);
           }
-          var chart = new google.visualization.BarChart(
-            document.getElementById("message_chart")
-          );
-          chart.draw(msgData);
-          return msgJson;
+          return msgData;
         });
     }
     return _messageChartPromise;
   }
 
+  var drawChart = function() {
+    fetchMessageData()
+        .then(function (msgData) {
+          var chart = new google.visualization.BarChart(
+            document.getElementById("message_chart")
+          );
+          chart.draw(msgData);
+        });
+ };
+ 
   var drawBarChart = function() {
     var diffCaffeine = new google.visualization.DataTable();
     //define columns for the DataTable instance
@@ -45,7 +51,6 @@
       ["Thursday", 700],
       ["Friday", 40]
     ]);
-    //cutomization to the chart
     var chartOptions = {
       'title': 'Amount of Caffeine Consumed in a Day',
       width: 800,
@@ -118,11 +123,11 @@
     });
     google.charts.setOnLoadCallback(
       function() {
-        fetchMessageData();
+        drawChart();
         drawBarChart();
         drawColumnChart();
         drawPieChart();
       });
   };
-  init();
+  init(fetchMessageData());
 })();
