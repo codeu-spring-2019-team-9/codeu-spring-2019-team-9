@@ -161,4 +161,21 @@ public class Datastore {
     return results.countEntities(FetchOptions.Builder.withDefaults());
   }
 
+  /**
+   * This is to create an user form data to put in the datastore
+   * TODO: Replace getUser() with UUID and use userChart.getId().toString()
+   */
+  public void storeUserFormData(Tea userChart) {
+    
+    Entity userFormData = new Entity("UserFormData", userChart.getUserName());
+    userFormData.setProperty("greenTea", userChart.getGreenTea());
+    userFormData.setProperty("whiteTea", userChart.getWhiteTea());
+    userFormData.setProperty("yellowTea", userChart.getYellowTea());
+    userFormData.setProperty("oolongTea", userChart.getOolongTea());
+    userFormData.setProperty("blackTea", userChart.getBlackTea());
+    userFormData.setProperty("matchaTea", userChart.getMatchaTea());
+
+    datastore.put(userFormData);
+  }
+
 }
