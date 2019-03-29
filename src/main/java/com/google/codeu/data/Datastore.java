@@ -92,40 +92,8 @@ public class Datastore {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(otherUser), "otherUser is null or empty");
 
     Query query = createMessageQueryWithUserFilter(loggedInUser, otherUser);
-
     PreparedQuery results = datastore.prepare(query);
     return prepareQueryToMesssages(results);
-  }
-
-  /** Returns the total number of messages for all users. */
-  public int getTotalMessageCount() {
-    Query query = new Query("Message");
-    PreparedQuery results = datastore.prepare(query);
-    return results.countEntities(FetchOptions.Builder.withDefaults());
-  }
-
-  public List<Message> getAllMessages() {
-    Query query = createPublicMessageQuery();
-    PreparedQuery results = datastore.prepare(query);
-    return prepareQueryToMesssages(results);
-  }
-
-  private Message entityToMessage(Entity entity) {
-    String idString = entity.getKey().getName();
-    UUID id = UUID.fromString(idString);
-    String text = getStringProperty(entity, "text").orElse("");
-    long timestamp = (long) entity.getProperty("timestamp");
-    String sender = (String) entity.getProperty("user");
-    String receiver = (String) entity.getProperty("recipient");
-    return new Message(id, sender, text, timestamp, receiver);
-  }
-
-  private List<Message> prepareQueryToMesssages(PreparedQuery query) {
-    List<Message> results = new ArrayList<>();
-    for (Entity entity : query.asIterable()) {
-      results.add(entityToMessage(entity));
-    }
-    return results;
   }
 
   private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
@@ -133,11 +101,7 @@ public class Datastore {
         .setFilter(createUserFilter(loggedInUser, otherUser))
         .addSort("timestamp", SortDirection.ASCENDING);
   }
-
-  private Query createPublicMessageQuery() {
-    return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
-  }
-
+  
   private Filter createUserFilter(String loggedInUser, String otherUser) {
     // Messages between two people, where logged-in user is the sender
     Filter messagesSentByLoggedInUser =
@@ -162,4 +126,39 @@ public class Datastore {
     // All the messages between the two users
     return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
   }
+
+  public List<Message> getAllMessages() {
+    Query query = createPublicMessageQuery();
+    PreparedQuery results = datastore.prepare(query);
+    return prepareQueryToMesssages(results);
+  }
+
+  private List<Message> prepareQueryToMesssages(PreparedQuery query) {
+    List<Message> results = new ArrayList<>();
+    for (Entity entity : query.asIterable()) {
+      results.add(entityToMessage(entity));
+    }
+    return results;
+  }
+
+  private Message entityToMessage(Entity entity) {
+    String idString = entity.getKey().getName();
+    UUID id = UUID.fromString(idString);
+    String text = getStringProperty(entity, "text").orElse("");
+    long timestamp = (long) entity.getProperty("timestamp");
+    String sender = (String) entity.getProperty("user");
+    String receiver = (String) entity.getProperty("recipient");
+    return new Message(id, sender, text, timestamp, receiver);
+  }
+
+  private Query createPublicMessageQuery() {
+    return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
+  }
+
+  public int getTotalMessageCount() {
+    Query query = new Query("Message");
+    PreparedQuery results = datastore.prepare(query);
+    return results.countEntities(FetchOptions.Builder.withDefaults());
+  }
+
 }
