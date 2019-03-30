@@ -14,37 +14,67 @@
  * limitations under the License.
  */
 
-/*
-
-/* Remove default styling from the body tag. */
-body {
-    background-color: #FFF1D0;
-  padding: 0;
-  margin: 0;
+/* Title animation*/
+.border{
+    background: linear-gradient(110deg, #EBCB8C 33%, rgba(0, 0, 0, 0) 33%), linear-gradient(110deg, #ffb972 34%, #88D8B0 34%);
+    background-size: 300% 300%;
+    background-position: 25% 50%;
+    padding: 5px;
+    height: 300px;
+    -webkit-animation: Gradient 15s ease infinite;
+    -moz-animation: Gradient 5s ease infinite;
 }
 
-/* Limit the content width and horizontally center it . */
+/* Default or base title attributes */
+.title {
+    vertical-align: middle;
+    text-align: left;
+    font-family: Futura-PT, sans-serif;
+    font-kerning: normal;
+    font-size:50pt;
+    color: blue;
+    color: #fff;
+    background: linear-gradient(110deg, #EBCB8C 33%, rgba(0, 0, 0, 0) 33%), linear-gradient(110deg, #ffb972 34%, #88d8b0 34%);
+    background-size: 300%;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+}
+
+/* animation sliding */
+.title{
+    animation: Gradient 5s ease infinite;
+    -webkit-animation: Gradient 15s ease infinite;
+    -moz-animation: Gradient 5s ease infinite;
+}
+
+@-webkit-keyframes Gradient {
+    0% {
+        background-position: 30% 50%
+    }
+    50% {
+        background-position: 25% 50%
+    }
+    100% {
+        background-position: 30% 50%
+    }
+
+}
+
+
+
+/* Limit the content width and horizontally center it */
 .content {
   width: 600px;
   margin: 0 auto;
 }
 
-/* Make the main content look like a card. */
-.content {
-    border:# 2px solid black;
-    fill: FFF1D0;
-    margin-top: 15px;
-    padding: 16px;
-    /* border-radius: 0px; */
-}
-
-/*
-  Text styling and alignment */
+/* Text styling and alignment */
 .content {
     font-family: Helvetica;
     font-kerning: normal;
     text-align: left;
 }
+
 
 /* Remove bullet points from navigation bar. */
 nav ul {
@@ -56,11 +86,4 @@ nav ul {
 nav li {
   display: inline-block;
   margin-right: 10px
-}
-
-.main {
-    font-family: Futura-PT, sans-serif;
-    font-stretch: condensed;
-    font-kerning: normal;
-    text-align: right;
 }
