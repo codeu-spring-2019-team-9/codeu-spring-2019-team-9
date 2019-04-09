@@ -17,7 +17,10 @@
 package com.google.codeu.servlets;
 
 import java.io.IOException;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,10 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+
 import com.google.codeu.data.Datastore;
-import com.google.codeu.data.Tea;
-
-
+import com.google.codeu.data.TeaCategory;
 
 
 public class UserFormServlet extends HttpServlet {
@@ -51,68 +53,26 @@ public class UserFormServlet extends HttpServlet {
     return new Datastore();
   }
 
+  /*
+  * This will always create a new Map with the values of the tea's 
+  * Currently, there is no error handling as of right now
+  */
 @Override
 public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-  UserService userService = UserServiceFactory.getUserService();
-    if (!userService.isUserLoggedIn()) {
-      response.sendRedirect("/index.html");
-      return;
-    }
-    String user = userService.getCurrentUser().getEmail();
-    int greenTea = Integer.parseInt(request.getParameter("greenTea"));
-    int whiteTea = Integer.parseInt(request.getParameter("whiteTea"));
-    int yellowTea = Integer.parseInt(request.getParameter("yellowTea"));
-    int oolongTea = Integer.parseInt(request.getParameter("oolongTea"));
-    int blackTea = Integer.parseInt(request.getParameter("blackTea"));
-    int matchaTea = Integer.parseInt(request.getParameter("matchaTea"));
+  Map<String, Integer> userTeaData = new HashMap<String, Integer>();
 
-    Tea userTeaData = new Tea(user,greenTea,whiteTea,yellowTea,oolongTea,blackTea,matchaTea);
+  DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+  LocalDate localDate = LocalDate.now();
+  String date = dtf.format(localDate);
+  
 
-    datastore.storeUserFormData(userTeaData);
+  userTeaData.put("greenTea", Integer.parseInt(request.getParameter("greenTea")));
+  userTeaData.put("whiteTea", Integer.parseInt(request.getParameter("whiteTea")));
+  userTeaData.put("blackTea", Integer.parseInt(request.getParameter("blackTea")));
+  userTeaData.put("herbalTea", Integer.parseInt(request.getParameter("herbalTea")));
+
+  datastore.storeUserFormData(userTeaData, date);
   }
 }
-  
-
-
-
-  // Entity post = new Entity("userFormData"); // create a new entity
-
-  // post.setProperty("greenTea", blogContent.get("greenTea"));
-  // post.setProperty("whiteTea", blogContent.get("whiteTea"));
-  // post.setProperty("yellowTea", blogContent.get("yellowTea"));
-  // post.setProperty("oolongTea", blogContent.get("oolongTea"));
-  // post.setProperty("blackTea", blogContent.get("blackTea"));
-  // post.setProperty("matchaTea", blogContent.get("matchaTea"));
-
-  // try {
-  //   datastore.put(post); // store the entity
-
-  //   // Send the user to the confirmation page with personalised confirmation text
-  //   String confirmation = "Post with title " + blogContent.get("blogContent_title") + " created.";
-
-  //   req.setAttribute("confirmation", confirmation);
-  //   req.getRequestDispatcher("/confirm.jsp").forward(req, resp);
-  // } catch (DatastoreFailureException e) {
-  //   throw new ServletException("Datastore error", e);
-  // }
-
-
-  
-  // @Override
-  // public void doPost(HttpServletRequest req, HttpServletResponse resp)
-  //     throws ServletException, IOException {
-
-  //   PrintWriter out = resp.getWriter();
-
-  //   out.println(
-  //       "User drinking tea: " 
-  //       + req.getParameter("greenTea") + "green tea" + '\n'
-  //       + req.getParameter("whiteTea") + "white tea" + '\n'
-  //       + req.getParameter("yellowTea") + "yellow Tea" + '\n'
-  //       + req.getParameter("oolongTea") + "oolong Tea" + '\n'
-  //       + req.getParameter("blackTea") + "black Tea" + '\n'
-  //       + req.getParameter("matchaTea")+ "matcha Tea");
-  // }
-
 

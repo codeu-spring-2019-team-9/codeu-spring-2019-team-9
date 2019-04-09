@@ -32,41 +32,39 @@ limitations under the License.
     </nav>
     <h1 id="page-title">User Page</h1>
    
-    <jsp:directive.taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-    <jsp.directive.taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="userForm">
   <h2>
-    Input what tea you drank today
+    What tea did you drink today?
   </h2>
 
   <form method="POST" action="/api/user-form-data">
 
     <div>
       <label for="greenTea">Green Tea</label>
-      <input type="number" name="greenTea" id="greenTea" size="40" value="${fn:escapeXml(tea.greenTea)}" class="form-control" />
+      <input type="number" name="greenTea" id="greenTea" size="40" class="form-control" />
     </div>
     <div>
       <label for="whiteTea">White Tea</label>
-      <input type="number" name="whiteTea" id="whiteTea" size="40" value="${fn:escapeXml(tea.whiteTea)}" class="form-control" />
+      <input type="number" name="whiteTea" id="whiteTea" size="40" class="form-control" />
     </div>
     <div>
       <label for="yellowTea">Yellow Tea</label>
-      <input type="number" name="yellowTea" id="yellowTea" size="40" value="${fn:escapeXml(tea.yellowTea)}" class="form-control" />
+      <input type="number" name="yellowTea" id="yellowTea" size="40" class="form-control" />
     </div>
     <div>
       <label for="oolongTea">Oolong Tea</label>
-      <input type="number" name="oolongTea" id="oolongTea" size="40" value="${fn:escapeXml(tea.oolongTea)}" class="form-control" />
+      <input type="number" name="oolongTea" id="oolongTea" size="40" class="form-control" />
     </div>
     <div>
       <label for="blackTea">Black Tea</label>
-      <input type="number" name="blackTea" id="blackTea" size="40" value="${fn:escapeXml(tea.blackTea)}" class="form-control" />
+      <input type="number" name="blackTea" id="blackTea" size="40" class="form-control" />
     </div>
     <div>
       <label for="matchaTea">Matcha Tea</label>
-      <input type="number" name="matchaTea" id="matchaTea" size="40" value="${fn:escapeXml(tea.matchaTea)}" class="form-control" />
+      <input type="number" name="matchaTea" id="matchaTea" size="40" class="form-control" />
     </div>
 
-    <button type="submit">Save</button>
+    <button onclick="onSubmit">Save</button>
   </form>
 </div>
 
