@@ -22,6 +22,7 @@ import com.google.appengine.api.datastore.PropertyContainer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
@@ -38,6 +39,8 @@ import java.util.Optional;
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 /** Provides access to the data stored in Datastore. */
 public class Datastore {
@@ -58,8 +61,7 @@ public class Datastore {
     try {
       value = (String) container.getProperty(propertyName);
     } catch (ClassCastException wrongType) {
-      logger.atSevere().withCause(wrongType).log(
-          "Property \"" + propertyName + "\" exists but is not a String.");
+      logger.atSevere().withCause(wrongType).log("Property \"" + propertyName + "\" exists but is not a String.");
     }
     return Optional.ofNullable(value);
   }
@@ -78,9 +80,9 @@ public class Datastore {
   /**
    * Gets messages sent between the logged-in user and another user.
    *
-   * @return a list of messages sent between the logged-in user and another user, or empty list if
-   *     logged-in user or other user have never sent a message to each other. List is sorted by
-   *     time ascending.
+   * @return a list of messages sent between the logged-in user and another user,
+   *         or empty list if logged-in user or other user have never sent a
+   *         message to each other. List is sorted by time ascending.
    */
   public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
     // Messages are ordered from oldest to newest since messages between
@@ -88,8 +90,7 @@ public class Datastore {
     // and this order makes the chronology of the conversation and context
     // more intuitive and understandable in the messages list page.
 
-    Preconditions.checkArgument(
-        !Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(otherUser), "otherUser is null or empty");
 
     Query query = createMessageQueryWithUserFilter(loggedInUser, otherUser);
@@ -98,31 +99,24 @@ public class Datastore {
   }
 
   private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
-    return new Query("Message")
-        .setFilter(createUserFilter(loggedInUser, otherUser))
-        .addSort("timestamp", SortDirection.ASCENDING);
+    return new Query("Message").setFilter(createUserFilter(loggedInUser, otherUser)).addSort("timestamp",
+        SortDirection.ASCENDING);
   }
-  
+
   private Filter createUserFilter(String loggedInUser, String otherUser) {
     // Messages between two people, where logged-in user is the sender
-    Filter messagesSentByLoggedInUser =
-        new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
-    Filter messagesReceivedByOtherUser =
-        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
+    Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
 
     // All the messages sent by logged-in user to the other user
-    Filter loggedInUserMessages =
-        CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
+    Filter loggedInUserMessages = CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
 
     // Messages between two people, where logged-in user is the recipient
-    Filter messagesSentByOtherUser =
-        new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
-    Filter messagesReceivedByLoggedInUser =
-        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
+    Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
 
     // All the messages recieved by logged-in user sent by the other user
-    Filter otherUserMessages =
-        CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
+    Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
     // All the messages between the two users
     return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
@@ -163,19 +157,37 @@ public class Datastore {
   }
 
   /**
-   * This is to create an user form data to put in the datastore
-   * TODO: Replace getUser() with UUID and use userChart.getId().toString()
+   * This is to create an user form data to put in the datastore Going with option
+   * 2 highlighted in the Meeting Notes
    */
-  public void storeUserFormData(Map<String, Integer> userTeaData, String Date) {
-    
-
-    if(
-    Entity userTeaConsumption = new Entity("UserFormData", userTeaData.getUserName());
+  public void storeUserTeaData(Map<String, Integer> incomingUserTeaData, String username, String date) {
+    Key usernameKey = KeyFactory.stringToKey(date+username);
   
+    try {
+      Entity datastoreUser = datastore.get(usernameKey);
+      
+      //Do not worry about it yet, :P
 
-    datastore.put(userTeaConsumption);
+      @SuppressWarnings("unchecked")
+      Map<String, Integer> storedUserTeaData = (Map<String, Integer>) datastoreUser.getProperty("teaData");
+
+      for (Map.Entry<String, Integer> storedMap : storedUserTeaData.entrySet()) {
+        String key = storedMap.getKey();
+        Integer value1 = storedMap.getValue();
+        Integer value2 = incomingUserTeaData.get(key); 
+        storedUserTeaData.put(key, value1+value2);
+      }
+
+      datastore.put(datastoreUser);
+
+    } catch (EntityNotFoundException e) {
+      Entity userTeaConsumption = new Entity("UserTeaData", usernameKey);
+      userTeaConsumption.setProperty("username", username);
+      userTeaConsumption.setProperty("date", date);
+      userTeaConsumption.setProperty("teaData", incomingUserTeaData);
+
+      datastore.put(userTeaConsumption);
+    }
   }
-
- 
 
 }

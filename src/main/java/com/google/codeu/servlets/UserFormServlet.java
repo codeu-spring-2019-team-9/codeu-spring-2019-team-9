@@ -67,12 +67,21 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
   String date = dtf.format(localDate);
   
 
+  //This is temp for now, need to move this to to javascript
+  UserService userService = UserServiceFactory.getUserService();
+  if (!userService.isUserLoggedIn()) {
+      response.setStatus(401);
+      response.getWriter().println("Error: Unauthorized access");
+      return;
+  }
+  String username = userService.getCurrentUser().getEmail();
+
   userTeaData.put("greenTea", Integer.parseInt(request.getParameter("greenTea")));
   userTeaData.put("whiteTea", Integer.parseInt(request.getParameter("whiteTea")));
   userTeaData.put("blackTea", Integer.parseInt(request.getParameter("blackTea")));
   userTeaData.put("herbalTea", Integer.parseInt(request.getParameter("herbalTea")));
 
-  datastore.storeUserFormData(userTeaData, date);
+  datastore.storeUserFormData(userTeaData, username, date);
   }
 }
 
