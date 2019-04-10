@@ -63,7 +63,8 @@ public class Datastore {
     try {
       value = (String) container.getProperty(propertyName);
     } catch (ClassCastException wrongType) {
-      logger.atSevere().withCause(wrongType).log("Property \"" + propertyName + "\" exists but is not a String.");
+      logger.atSevere().withCause(wrongType).log(
+          "Property \"" + propertyName + "\" exists but is not a String.");
     }
     return Optional.ofNullable(value);
   }
@@ -82,9 +83,9 @@ public class Datastore {
   /**
    * Gets messages sent between the logged-in user and another user.
    *
-   * @return a list of messages sent between the logged-in user and another user,
-   *         or empty list if logged-in user or other user have never sent a
-   *         message to each other. List is sorted by time ascending.
+   * @return a list of messages sent between the logged-in user and another user, or empty list if
+   *     logged-in user or other user have never sent a message to each other. List is sorted by
+   *     time ascending.
    */
   public List<Message> getMessagesBetweenTwoUsers(String loggedInUser, String otherUser) {
     // Messages are ordered from oldest to newest since messages between
@@ -92,7 +93,8 @@ public class Datastore {
     // and this order makes the chronology of the conversation and context
     // more intuitive and understandable in the messages list page.
 
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
+    Preconditions.checkArgument(
+        !Strings.isNullOrEmpty(loggedInUser), "loggedInUser is null or empty");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(otherUser), "otherUser is null or empty");
 
     Query query = createMessageQueryWithUserFilter(loggedInUser, otherUser);
@@ -101,24 +103,31 @@ public class Datastore {
   }
 
   private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
-    return new Query("Message").setFilter(createUserFilter(loggedInUser, otherUser)).addSort("timestamp",
-        SortDirection.ASCENDING);
+    return new Query("Message")
+        .setFilter(createUserFilter(loggedInUser, otherUser))
+        .addSort("timestamp", SortDirection.ASCENDING);
   }
 
   private Filter createUserFilter(String loggedInUser, String otherUser) {
     // Messages between two people, where logged-in user is the sender
-    Filter messagesSentByLoggedInUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
-    Filter messagesReceivedByOtherUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
+    Filter messagesSentByLoggedInUser =
+        new Query.FilterPredicate("user", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesReceivedByOtherUser =
+        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, otherUser);
 
     // All the messages sent by logged-in user to the other user
-    Filter loggedInUserMessages = CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
+    Filter loggedInUserMessages =
+        CompositeFilterOperator.and(messagesSentByLoggedInUser, messagesReceivedByOtherUser);
 
     // Messages between two people, where logged-in user is the recipient
-    Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
-    Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
+    Filter messagesSentByOtherUser =
+        new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
+    Filter messagesReceivedByLoggedInUser =
+        new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
 
     // All the messages recieved by logged-in user sent by the other user
-    Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
+    Filter otherUserMessages =
+        CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
     // All the messages between the two users
     return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
@@ -159,15 +168,16 @@ public class Datastore {
   }
 
   /**
-   * This is to create an user form data to put in the datastore Going with option
-   * 2 highlighted in the Meeting Notes
-   * 
+   * This is to create an user form data to put in the datastore Going with option 2 highlighted in
+   * the Meeting Notes
+   *
    * @throws EntityNotFoundException
    */
-  public void storeUserTeaData(Map<String, Long> incomingUserTeaData, String username, String date) {
-    
+  public void storeUserTeaData(
+      Map<String, Long> incomingUserTeaData, String username, String date) {
+
     Entity datastoreUser;
-    Key usernameKey = KeyFactory.createKey("UserTeaData",date+username);
+    Key usernameKey = KeyFactory.createKey("UserTeaData", date + username);
 
     try {
       datastoreUser = datastore.get(usernameKey);
@@ -177,25 +187,25 @@ public class Datastore {
       Map<String, Long> newMap = new HashMap<String, Long>();
       EmbeddedEntity teaMap = (EmbeddedEntity) datastoreUser.getProperty("teaData");
 
-        for (String key : teaMap.getProperties().keySet()) {
-          Long value1 = incomingUserTeaData.get(key);
-          Long value2 = value1 + (Long) teaMap.getProperty(key);
-          newMap.put(key, value2);
-        }
+      for (String key : teaMap.getProperties().keySet()) {
+        Long value1 = incomingUserTeaData.get(key);
+        Long value2 = value1 + (Long) teaMap.getProperty(key);
+        newMap.put(key, value2);
+      }
 
-      for (String key : newMap.keySet()) { 
+      for (String key : newMap.keySet()) {
         teaMap.setProperty(key, newMap.get(key));
       }
-        datastoreUser.setProperty("teaData", teaMap);
+      datastoreUser.setProperty("teaData", teaMap);
       datastore.put(datastoreUser);
     } catch (EntityNotFoundException e) {
-      
+
       Entity userTeaConsumption = new Entity(usernameKey);
       userTeaConsumption.setProperty("username", username);
       userTeaConsumption.setProperty("date", date);
 
       EmbeddedEntity teaMap = new EmbeddedEntity();
-      for (String key : incomingUserTeaData.keySet()) { 
+      for (String key : incomingUserTeaData.keySet()) {
         teaMap.setProperty(key, incomingUserTeaData.get(key));
       }
       userTeaConsumption.setProperty("teaData", teaMap);

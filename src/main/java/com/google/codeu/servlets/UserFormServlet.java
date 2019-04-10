@@ -34,9 +34,8 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.TeaCategory;
 
-
 public class UserFormServlet extends HttpServlet {
-  
+
   private Datastore datastore;
 
   @Override
@@ -54,34 +53,33 @@ public class UserFormServlet extends HttpServlet {
   }
 
   /*
-  * This will always create a new Map with the values of the tea's 
-  * Currently, there is no error handling as of right now
-  */
-@Override
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   * This will always create a new Map with the values of the tea's
+   * Currently, there is no error handling as of right now
+   */
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
 
-  Map<String, Long> userTeaData = new HashMap<String, Long>();
+    Map<String, Long> userTeaData = new HashMap<String, Long>();
 
-  DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-  LocalDate localDate = LocalDate.now();
-  String date = dtf.format(localDate);
-  
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    LocalDate localDate = LocalDate.now();
+    String date = dtf.format(localDate);
 
-  //This is temp for now, need to move this to to javascript
-  UserService userService = UserServiceFactory.getUserService();
-  if (!userService.isUserLoggedIn()) {
+    // This is temp for now, need to move this to to javascript
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
       response.setStatus(401);
       response.getWriter().println("Error: Unauthorized access");
       return;
-  }
-  String username = userService.getCurrentUser().getEmail();
+    }
+    String username = userService.getCurrentUser().getEmail();
 
-  userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
-  userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
-  userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
-  userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
+    userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
+    userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
+    userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
+    userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
 
-  datastore.storeUserTeaData(userTeaData, username, date);
+    datastore.storeUserTeaData(userTeaData, username, date);
   }
 }
-

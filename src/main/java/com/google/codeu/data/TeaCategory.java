@@ -17,8 +17,8 @@
 package com.google.codeu.data;
 
 public enum TeaCategory {
-    GREEN,
-    WHITE,
-    BLACK,
-    HERBAL;
- }
+  GREEN,
+  WHITE,
+  BLACK,
+  HERBAL;
+}
