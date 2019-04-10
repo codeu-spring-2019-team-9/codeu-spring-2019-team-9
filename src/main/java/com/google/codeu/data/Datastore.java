@@ -174,7 +174,7 @@ public class Datastore {
    * @throws EntityNotFoundException
    */
   public void storeUserTeaData(
-      Map<String, Long> incomingUserTeaData, String username, String date) {
+     Map<String, Long> incomingUserTeaData, String username, String date) {
 
     Entity datastoreUser;
     Key usernameKey = KeyFactory.createKey("UserTeaData", date + username);
@@ -184,20 +184,17 @@ public class Datastore {
       datastoreUser.setProperty("username", datastoreUser.getProperty("username"));
       datastoreUser.setProperty("date", datastoreUser.getProperty("date"));
 
-      Map<String, Long> newMap = new HashMap<String, Long>();
       EmbeddedEntity teaMap = (EmbeddedEntity) datastoreUser.getProperty("teaData");
 
       for (String key : teaMap.getProperties().keySet()) {
         Long value1 = incomingUserTeaData.get(key);
         Long value2 = value1 + (Long) teaMap.getProperty(key);
-        newMap.put(key, value2);
+        teaMap.setProperty(key, value2);
       }
 
-      for (String key : newMap.keySet()) {
-        teaMap.setProperty(key, newMap.get(key));
-      }
       datastoreUser.setProperty("teaData", teaMap);
       datastore.put(datastoreUser);
+
     } catch (EntityNotFoundException e) {
 
       Entity userTeaConsumption = new Entity(usernameKey);
