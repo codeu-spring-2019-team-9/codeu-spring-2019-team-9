@@ -179,9 +179,7 @@ public class Datastore {
 
         for (String key : teaMap.getProperties().keySet()) {
           Long value1 = incomingUserTeaData.get(key);
-          System.out.println(Long.toString(value1));
           Long value2 = value1 + (Long) teaMap.getProperty(key);
-          System.out.println(Long.toString(value2));
           newMap.put(key, value2);
         }
 
@@ -189,20 +187,9 @@ public class Datastore {
         teaMap.setProperty(key, newMap.get(key));
       }
         datastoreUser.setProperty("teaData", teaMap);
-
-      // @SuppressWarnings("unchecked")
-      // Map<String, Integer> storedUserTeaData = (Map<String, Integer>) datastoreUser.getProperty("teaData");
-
-      // for (Map.Entry<String, Integer> storedMap : storedUserTeaData.entrySet()) {
-      //   String teaName = storedMap.getKey();
-      //   Integer value1 = storedMap.getValue();
-      //   Integer value2 = incomingUserTeaData.get(teaName);
-      //   storedUserTeaData.put(teaName, value1+value2);
-      // }
-      // userTeaConsumption.setProperty("teaData", storedUserTeaData);
-
       datastore.put(datastoreUser);
     } catch (EntityNotFoundException e) {
+      
       Entity userTeaConsumption = new Entity(usernameKey);
       userTeaConsumption.setProperty("username", username);
       userTeaConsumption.setProperty("date", date);
