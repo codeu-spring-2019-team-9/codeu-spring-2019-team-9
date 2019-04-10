@@ -177,7 +177,8 @@ public class Datastore {
      Map<String, Long> incomingUserTeaData, String username, String date) {
 
     Entity datastoreUser;
-    Key usernameKey = KeyFactory.createKey("UserTeaData", date + username);
+    String keyName = date + ":" + username;
+    Key usernameKey = KeyFactory.createKey("UserTeaData", keyName);
 
     try {
       datastoreUser = datastore.get(usernameKey);

@@ -68,7 +68,7 @@ public class UserFormServlet extends HttpServlet {
 
     UserService userService = UserServiceFactory.getUserService();
     if (!userService.isUserLoggedIn()) {
-      response.setStatus(400);
+      response.setStatus(401);
       response.getWriter().println("Error: Unauthorized access");
       return;
     }
