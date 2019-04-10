@@ -21,6 +21,7 @@ import com.google.common.flogger.FluentLogger;
 import com.google.appengine.api.datastore.PropertyContainer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -32,6 +33,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -162,36 +164,54 @@ public class Datastore {
    * 
    * @throws EntityNotFoundException
    */
-  public void storeUserTeaData(Map<String, Integer> incomingUserTeaData, String username, String date) {
+  public void storeUserTeaData(Map<String, Long> incomingUserTeaData, String username, String date) {
     
     Entity datastoreUser;
-    Key usernameKey = KeyFactory.stringToKey(date+username);
+    Key usernameKey = KeyFactory.createKey("UserTeaData",date+username);
 
     try {
-     
       datastoreUser = datastore.get(usernameKey);
-      @SuppressWarnings("unchecked")
-      Map<String, Integer> storedUserTeaData = (Map<String, Integer>) datastoreUser.getProperty("teaData");
+      datastoreUser.setProperty("username", datastoreUser.getProperty("username"));
+      datastoreUser.setProperty("date", datastoreUser.getProperty("date"));
 
-      for (Map.Entry<String, Integer> storedMap : storedUserTeaData.entrySet()) {
-        String key = storedMap.getKey();
-        Integer value1 = storedMap.getValue();
-        Integer value2 = incomingUserTeaData.get(key);
-        storedUserTeaData.put(key, value1+value2);
+      Map<String, Long> newMap = new HashMap<String, Long>();
+      EmbeddedEntity teaMap = (EmbeddedEntity) datastoreUser.getProperty("teaData");
+
+        for (String key : teaMap.getProperties().keySet()) {
+          Long value1 = incomingUserTeaData.get(key);
+          System.out.println(Long.toString(value1));
+          Long value2 = value1 + (Long) teaMap.getProperty(key);
+          System.out.println(Long.toString(value2));
+          newMap.put(key, value2);
+        }
+
+      for (String key : newMap.keySet()) { 
+        teaMap.setProperty(key, newMap.get(key));
       }
-      /**
-       *  userTeaConsumption.setProperty("username", datastoreUser.getProperty("username"));
-       * userTeaConsumption.setProperty("date", datastoreUser.getProperty("date"));
-       * userTeaConsumption.setProperty("teaData", storedUserTeaData);
-       */
+        datastoreUser.setProperty("teaData", teaMap);
+
+      // @SuppressWarnings("unchecked")
+      // Map<String, Integer> storedUserTeaData = (Map<String, Integer>) datastoreUser.getProperty("teaData");
+
+      // for (Map.Entry<String, Integer> storedMap : storedUserTeaData.entrySet()) {
+      //   String teaName = storedMap.getKey();
+      //   Integer value1 = storedMap.getValue();
+      //   Integer value2 = incomingUserTeaData.get(teaName);
+      //   storedUserTeaData.put(teaName, value1+value2);
+      // }
+      // userTeaConsumption.setProperty("teaData", storedUserTeaData);
 
       datastore.put(datastoreUser);
     } catch (EntityNotFoundException e) {
-      Entity userTeaConsumption = new Entity("UserTeaData", usernameKey);
+      Entity userTeaConsumption = new Entity(usernameKey);
       userTeaConsumption.setProperty("username", username);
       userTeaConsumption.setProperty("date", date);
-      userTeaConsumption.setProperty("teaData", incomingUserTeaData);
 
+      EmbeddedEntity teaMap = new EmbeddedEntity();
+      for (String key : incomingUserTeaData.keySet()) { 
+        teaMap.setProperty(key, incomingUserTeaData.get(key));
+      }
+      userTeaConsumption.setProperty("teaData", teaMap);
       datastore.put(userTeaConsumption);
     }
   }

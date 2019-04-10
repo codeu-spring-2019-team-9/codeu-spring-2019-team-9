@@ -60,7 +60,7 @@ public class UserFormServlet extends HttpServlet {
 @Override
 public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-  Map<String, Integer> userTeaData = new HashMap<String, Integer>();
+  Map<String, Long> userTeaData = new HashMap<String, Long>();
 
   DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
   LocalDate localDate = LocalDate.now();
@@ -76,10 +76,10 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
   }
   String username = userService.getCurrentUser().getEmail();
 
-  userTeaData.put("greenTea", Integer.parseInt(request.getParameter("greenTea")));
-  userTeaData.put("whiteTea", Integer.parseInt(request.getParameter("whiteTea")));
-  userTeaData.put("blackTea", Integer.parseInt(request.getParameter("blackTea")));
-  userTeaData.put("herbalTea", Integer.parseInt(request.getParameter("herbalTea")));
+  userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
+  userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
+  userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
+  userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
 
   datastore.storeUserTeaData(userTeaData, username, date);
   }
