@@ -81,7 +81,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
   userTeaData.put("blackTea", Integer.parseInt(request.getParameter("blackTea")));
   userTeaData.put("herbalTea", Integer.parseInt(request.getParameter("herbalTea")));
 
-  datastore.storeUserFormData(userTeaData, username, date);
+  datastore.storeUserTeaData(userTeaData, username, date);
   }
 }
 

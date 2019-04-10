@@ -159,27 +159,33 @@ public class Datastore {
   /**
    * This is to create an user form data to put in the datastore Going with option
    * 2 highlighted in the Meeting Notes
+   * 
+   * @throws EntityNotFoundException
    */
   public void storeUserTeaData(Map<String, Integer> incomingUserTeaData, String username, String date) {
+    
+    Entity datastoreUser;
     Key usernameKey = KeyFactory.stringToKey(date+username);
-  
-    try {
-      Entity datastoreUser = datastore.get(usernameKey);
-      
-      //Do not worry about it yet, :P
 
+    try {
+     
+      datastoreUser = datastore.get(usernameKey);
       @SuppressWarnings("unchecked")
       Map<String, Integer> storedUserTeaData = (Map<String, Integer>) datastoreUser.getProperty("teaData");
 
       for (Map.Entry<String, Integer> storedMap : storedUserTeaData.entrySet()) {
         String key = storedMap.getKey();
         Integer value1 = storedMap.getValue();
-        Integer value2 = incomingUserTeaData.get(key); 
+        Integer value2 = incomingUserTeaData.get(key);
         storedUserTeaData.put(key, value1+value2);
       }
+      /**
+       *  userTeaConsumption.setProperty("username", datastoreUser.getProperty("username"));
+       * userTeaConsumption.setProperty("date", datastoreUser.getProperty("date"));
+       * userTeaConsumption.setProperty("teaData", storedUserTeaData);
+       */
 
       datastore.put(datastoreUser);
-
     } catch (EntityNotFoundException e) {
       Entity userTeaConsumption = new Entity("UserTeaData", usernameKey);
       userTeaConsumption.setProperty("username", username);
@@ -189,5 +195,4 @@ public class Datastore {
       datastore.put(userTeaConsumption);
     }
   }
-
 }
