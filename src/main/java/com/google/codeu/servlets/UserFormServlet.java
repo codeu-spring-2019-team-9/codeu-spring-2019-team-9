@@ -66,10 +66,9 @@ public class UserFormServlet extends HttpServlet {
     LocalDate localDate = LocalDate.now();
     String date = dtf.format(localDate);
 
-    // This is temp for now, need to move this to to javascript
     UserService userService = UserServiceFactory.getUserService();
     if (!userService.isUserLoggedIn()) {
-      response.setStatus(401);
+      response.setStatus(400);
       response.getWriter().println("Error: Unauthorized access");
       return;
     }
