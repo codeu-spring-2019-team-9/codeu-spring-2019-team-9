@@ -90,6 +90,9 @@ function buildMessageDiv(message) {
   return messageDiv;
 }
 
+function onSubmit() {
+  //https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Form_validation
+}
 
 
 /** Fetches data and populates the UI of the page. */
