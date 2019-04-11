@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-
+import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.TeaCategory;
 
@@ -81,15 +81,12 @@ public class UserFormServlet extends HttpServlet {
         for (String tea : teaNames) {
           try {
             String formTea = request.getParameter(tea);
-            if (formTea == null || !formTea.isEmpty()) {
-              throw new NumberFormatException();
+            if (Strings.isNullOrEmpty(formTea)) {
+              throw new NullPointerException();
             }
             Long amountOfTea = Long.parseLong(formTea);
             userTeaData.put(tea, amountOfTea);
           } catch (NullPointerException e) {
-            response.setStatus(400);
-            response.getWriter().println("Error: Null Pointer Problem for " + tea);
-          } catch (NumberFormatException e) {
             response.setStatus(400);
             response.getWriter().println("Error: Number Format Problem for " + tea);
           }

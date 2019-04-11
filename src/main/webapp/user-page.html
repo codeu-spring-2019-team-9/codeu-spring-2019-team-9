@@ -36,26 +36,26 @@ limitations under the License.
     <h2>
         What tea did you drink today?
     </h2>
-    
+    <form method="POST" action="/api/user-form-data">
     <div>
-            <label for="greenTea">Green Tea</label>
-            <input type="number" name="greenTea" />
-        </div>
-        <div>
-            <label for="whiteTea">White Tea</label>
-            <input type="number" name="whiteTea" />
-        </div>
-        <div>
-            <label for="blackTea">Black Tea</label>
-            <input type="number" name="blackTea" />
-        </div>
-        <div>
-            <label for="herbalTea">Herbal Tea</label>
-            <input type="number" name="herbalTea" />
-        </div>
-
-        <button onclick='onSubmit'>Save</button>
+        <label for="greenTea">Green Tea</label>
+        <input type="number" name="greenTea" id="greenTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="whiteTea">White Tea</label>
+        <input type="number" name="whiteTea" id="whiteTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="blackTea">Black Tea</label>
+        <input type="number" name="blackTea" id="blackTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="herbalTea">Herbal Tea</label>
+        <input type="number" name="herbalTea" id="herbalTea" size="40" class="form-control"/>
+    </div>
+    <button type="submit">Save</button>
     </form>
+
 </div>
 
 
