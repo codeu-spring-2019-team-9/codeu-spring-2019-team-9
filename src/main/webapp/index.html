@@ -24,21 +24,64 @@ limitations under the License.
   </head>
   <body onload="addLoginOrLogoutLinkToNavigation();">
     <div class="content">
-        <nav>
-        <ul id="navigation">
-            <li><a href="/">Home</a></li>
-        </ul>
-        </nav>
-        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-        <div class="main">
-            <h1 class="title">(Tea)m 9
-                <br> Tea Collective</h1>
-        </div>
-        <div>
-            <p>
-                This would be our main app page.
-            </p>
+        <header id="header">
+            <!--  Brand Logo  -->
+            <a class="nav-brand" href="" target="_blank">
+                <img id="header-img" src="https://i.postimg.cc/3xKVby1c/test-image.png" alt="Test Logo">
+            </a>
+            <nav>
+                <ul id="navigation" class="nav">
+                    <li><a href="/">Home</a></li>
+                </ul>
+            </nav>
+        </header>
+        <link href="https://fonts.googleapis.com/css?family=Arimo" rel="stylesheet">
+
+        <!-- Hero Section -->
+        <div class ="hero">
+            <div class="hero-img">
+                <img src="https://images.pexels.com/photos/948888/pexels-photo-948888.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" alt="Tea Forum">
+            </div>
+            <div class="hero-text">
+                <h1>Where tea</br> enthusiasts </br> unite. </h1>
+
+            </div>
         </div>
     </div>
+
+    <!-- Buttons Section -->
+    <section id="buttons">
+        <div class="title title-right">
+            <span class="line line-right"></span><h3>Go to</h3>
+        </div>
+        <div class="wrapper">
+            <a class="box box1" href="chart.html">
+                <h4>Charts</h4>
+                <div class="box-overlay"></div>
+            </a>
+            <a class="box box1" href="#">
+                <h4>Direct Messages</h4>
+                <div class="box-overlay"></div>
+            </a>
+        </div>
+    </section>
+
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="wrapper">
+            <div class="contact-wrapper">
+                <h4>Stay In Touch With Us!</h4>
+                <div class="wrapper">
+                    <a class="contact-footer contact-tel" href="#"><i class="phone" aria-hidden="true"></i>000-000-0000</a>
+                    <a class="contact-footer contact-email" href="mailto:test@example.com"><i class="envelope" aria-hidden="true"></i>Send an email</a>
+                </div>
+            </div>
+            <div class="copy-wrapper">
+                <h6><i class="copyright" aria-hidden="true"></i> An application by CodeU's Coders With Class</h6>
+            </div>
+        </div>
+    </section>
+
   </body>
 </html>
