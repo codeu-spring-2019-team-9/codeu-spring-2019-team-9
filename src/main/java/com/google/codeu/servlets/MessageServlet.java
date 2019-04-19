@@ -22,6 +22,10 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.Message;
 import com.google.gson.Gson;
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.Document.Type;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServlet;
@@ -56,7 +60,7 @@ public class MessageServlet extends HttpServlet {
     if (userService.isUserLoggedIn()) {
       loggedInUser = Optional.ofNullable(userService.getCurrentUser().getEmail());
     }
-    
+
     // Request is invalid, return empty array
     // TODO: Make errors JSON objects
     if (loggedInUser.orElse("").isEmpty()) {
@@ -90,11 +94,29 @@ public class MessageServlet extends HttpServlet {
     String user = userService.getCurrentUser().getEmail();
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.none());
     String recipient = request.getParameter("recipient");
+    System.out.println("before getting sentiment score");
+    System.out.println("text: " + text);
+    float sentimentScore = calculateSentimentScore(text);
+    //System.out.println("after getting sentiment score: " + sentimentScore);
 
-    System.out.println(recipient);
-    Message message = new Message(user, text, recipient);
+    Message message = new Message(user, text, recipient, sentimentScore);
     datastore.storeMessage(message);
 
     response.sendRedirect("/user-page.html?user=" + recipient);
+  }
+
+  // Returns the sentiment score of the input text
+  private float calculateSentimentScore(String text) throws IOException {
+    //System.out.println("before doc; text: " + text);
+    Document doc = Document.newBuilder()
+        .setContent(text).setType(Type.PLAIN_TEXT).build();
+    //System.out.println("after doc and before client; doc: " + doc);
+    LanguageServiceClient languageService = LanguageServiceClient.create();
+    //System.out.println("after client, before sentiment");
+    Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
+    //System.out.println("after sentiment, before closing");
+    languageService.close();
+    //System.out.println("after closing, before return");
+    return sentiment.getScore();
   }
 }

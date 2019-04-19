@@ -66,6 +66,7 @@ public class Datastore {
     messageEntity.setProperty("text", message.getText());
     messageEntity.setProperty("timestamp", message.getTimestamp());
     messageEntity.setProperty("recipient", message.getRecipient());
+    messageEntity.setProperty("sentimentScore", message.getSentimentScore());
 
     datastore.put(messageEntity);
   }
@@ -89,7 +90,7 @@ public class Datastore {
     // Messages between two people, where logged-in user is the recipient
     Filter messagesSentByOtherUser = new Query.FilterPredicate("user", FilterOperator.EQUAL, otherUser);
     Filter messagesReceivedByLoggedInUser = new Query.FilterPredicate("recipient", FilterOperator.EQUAL, loggedInUser);
-    
+
     // All the messages recieved by logged-in user sent by the other user
     Filter otherUserMessages = CompositeFilterOperator.and(messagesSentByOtherUser, messagesReceivedByLoggedInUser);
 
@@ -99,7 +100,7 @@ public class Datastore {
     // Messages are ordered from oldest to newest since messages between
     // people may include implicit context/reference to previously sent messages,
     // and this order makes the chronology of the conversation and context
-    // more intuitive and understandable in the messages list page. 
+    // more intuitive and understandable in the messages list page.
     Query query =
         new Query("Message")
             .setFilter(directMessages)
@@ -112,8 +113,10 @@ public class Datastore {
       String text = getStringProperty(entity, "text").orElse("");
       long timestamp = (long) entity.getProperty("timestamp");
       String sender = (String) entity.getProperty("user");
-      String receiver = (String) entity.getProperty("recipient");
-      Message message = new Message(id, sender, text, timestamp, receiver);
+      String receiver = (String) entity.getProperty("receiver");
+      float sentimentScore = entity.getProperty("sentimentScore") == null ? (float) 0.0 : ((Double) entity.getProperty("sentimentScore")).floatValue();
+
+      Message message = new Message(id, sender, text, timestamp, receiver, sentimentScore);
       messages.add(message);
     }
 
@@ -126,5 +129,4 @@ public class Datastore {
     PreparedQuery results = datastore.prepare(query);
     return results.countEntities(FetchOptions.Builder.withDefaults());
   }
-
 }
