@@ -32,10 +32,10 @@ function addLoginOrLogoutLinkToNavigation() {
       .then((loginStatus) => {
         if (loginStatus.isLoggedIn) {
           navigationElement.appendChild(createListItem(createLink(
-              '/user-page.html?user=' + loginStatus.username, 'Your Page')));
+              '/user-page.html?user=' + loginStatus.username, 'Profile ')));
 
           navigationElement.appendChild(
-              createListItem(createLink('/logout', 'Logout')));
+              createListItem(createLink('/logout', ' Logout')));
         } else {
           navigationElement.appendChild(
               createListItem(createLink('/login', 'Login')));

@@ -210,10 +210,12 @@ header:before{
     display: flex;
     height: 100vh;
     align-items: center;
-    background: #E7F7DD url("https://images.pexels.com/photos/948888/pexels-photo-948888.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260") no-repeat right bottom;
-}
-.hero-img img{
-    display: none;
+    /*background: #E7F7DD; */
+    background-image: url("https://images.unsplash.com/photo-1515696955266-4f67e13219e8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.65;
 }
 
 .hero-text{
@@ -260,6 +262,12 @@ section#contact{
     margin: 2em auto;
     border-bottom: solid 1px #dadada;
 }
+#submit:hover {
+    background-color: #85997B;
+    color: #ffffff;
+    transition: all .25s ease;
+}
+
 .contact-wrapper .wrapper{
     display: flex;
     text-align: center;
@@ -302,18 +310,11 @@ section#contact{
 
     /*  Hero Section  */
     .hero{
-        background-image: none;
         justify-content: center;
         overflow: hidden;
-    }
-    .hero-img{
         padding-top: 6.5em;
     }
-    .hero-img img{
-        display: block;
-        width: 14em;
-        height: auto;
-    }
+
     .hero-text{
         padding: 0 2em;
     }
@@ -438,11 +439,6 @@ section#contact{
         width: 5.5em;
     }
 
-    /*  Hero Section  */
-    .hero-img img{
-        width: 14.5em;
-    }
-
     /* Contact Section */
     .contact-tel{
         flex-basis: 20%;
@@ -458,8 +454,4 @@ section#contact{
         padding: 5.8em 11em 0;
     }
 
-    /*  Hero Section  */
-    .hero-img img{
-        width: 15.5em;
-    }
 }
