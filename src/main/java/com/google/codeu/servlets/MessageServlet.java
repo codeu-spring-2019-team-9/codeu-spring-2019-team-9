@@ -33,6 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.apache.commons.validator.routines.UrlValidator;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /** Handles fetching and saving {@link Message} instances. */
 public class MessageServlet extends HttpServlet {
@@ -94,12 +97,25 @@ public class MessageServlet extends HttpServlet {
     String user = userService.getCurrentUser().getEmail();
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.none());
     String recipient = request.getParameter("recipient");
-    System.out.println("before getting sentiment score");
-    System.out.println("text: " + text);
     float sentimentScore = calculateSentimentScore(text);
-    //System.out.println("after getting sentiment score: " + sentimentScore);
 
-    Message message = new Message(user, text, recipient, sentimentScore);
+    // Replace image links with image tags after validating links
+    UrlValidator urlValidator = new UrlValidator();
+    String regex = "(https?://([^\\s.]+.?[^\\s.]*)+/([^\\s.]+.?[^\\s.]*)+.(png|jpg))";
+    String replacement = "<img src=\"$1\" />";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(text);
+    StringBuffer textWithImagesReplaced = new StringBuffer();
+
+    while (matcher.find()) {
+      String url = matcher.group(0);
+      if (urlValidator.isValid(url)) {
+        matcher.appendReplacement(textWithImagesReplaced, replacement);
+      } else textWithImagesReplaced.append(url);
+    }
+    matcher.appendTail(textWithImagesReplaced);
+
+    Message message = new Message(user, textWithImagesReplaced.toString(), recipient, sentimentScore);
     datastore.storeMessage(message);
 
     response.sendRedirect("/user-page.html?user=" + recipient);
@@ -107,16 +123,11 @@ public class MessageServlet extends HttpServlet {
 
   // Returns the sentiment score of the input text
   private float calculateSentimentScore(String text) throws IOException {
-    //System.out.println("before doc; text: " + text);
     Document doc = Document.newBuilder()
         .setContent(text).setType(Type.PLAIN_TEXT).build();
-    //System.out.println("after doc and before client; doc: " + doc);
     LanguageServiceClient languageService = LanguageServiceClient.create();
-    //System.out.println("after client, before sentiment");
     Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
-    //System.out.println("after sentiment, before closing");
     languageService.close();
-    //System.out.println("after closing, before return");
     return sentiment.getScore();
   }
 }
