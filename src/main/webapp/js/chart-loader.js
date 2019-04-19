@@ -12,11 +12,13 @@
       ["Thursday", 700],
       ["Friday", 40]
     ]);
-    //cutomization to the chart
+    //customization to the chart
     var chartOptions = {
-      'title': 'Amount of Caffeine Consumed in a Day',
+      title: 'Amount of Caffeine Consumed in a Day',
       width: 800,
-      height: 400
+      height: 400,
+      // bar colors, needs to be fixed
+      // colors: ['#327399', '#61E8E1', '#F25757', '#F2E863', '#F2CD60']
     };
     var chart = new google.visualization.BarChart(
       document.getElementById("caffeine_chart")
@@ -42,6 +44,7 @@
       title: 'Amount of Tea in a Given Week',
       width: 600,
       height: 400,
+      colors: ['#327399', '#61E8E1', '#F25757', '#F2E863', '#F2CD60'],
       bar: {
         groupWidth: "95%"
       },
@@ -49,7 +52,6 @@
         position: "none"
       },
     };
-
     var chart = new google.visualization.ColumnChart(
       document.getElementById("tea_chart")
     );
@@ -73,7 +75,8 @@
     var pieOptions = {
       title: 'Popularity of Types of Tea',
       width: 900,
-      height: 500
+      height: 500,
+      colors: ['#6B4591', '#327399', '#61E8E1', '#F25757', '#F2E863', '#F2CD60']
     };
     var chart = new google.visualization.PieChart(document.getElementById('pie_chart'));
     chart.draw(diffFavoriteTea, pieOptions);
