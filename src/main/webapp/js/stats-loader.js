@@ -13,14 +13,14 @@ function renderStatsOnPage() {
     const statsContainer = document.getElementById("stats-container");
     statsContainer.innerHTML = "";
     const messageCountElement = buildStatElement(
-      "Message count: " + stats.messageCount
+      "We've proudly served " + stats.messageCount + " of you."
     );
     statsContainer.appendChild(messageCountElement);
   });
 }
 
 function buildStatElement(statString) {
-  const statElement = document.createElement('p');
+  const statElement = document.createElement('h1');
   statElement.textContent = statString;
   return statElement;
 }
