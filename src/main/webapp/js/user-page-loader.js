@@ -90,8 +90,6 @@ function buildMessageDiv(message) {
   return messageDiv;
 }
 
-
-
 /** Fetches data and populates the UI of the page. */
 function buildUI() {
   setPageTitle();
