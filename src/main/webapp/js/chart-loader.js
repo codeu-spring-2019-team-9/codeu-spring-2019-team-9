@@ -61,7 +61,7 @@
   var drawPieChart = function() {
     var diffFavoriteTea = new google.visualization.DataTable();
     diffFavoriteTea.addColumn('string', 'Tea');
-    diffFavoriteTea.addColumn('number', 'Populartiy');
+    diffFavoriteTea.addColumn('number', 'Popularity');
 
     diffFavoriteTea.addRows([
       ["Green Tea", 46],
