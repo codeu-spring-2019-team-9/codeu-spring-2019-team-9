@@ -34,8 +34,8 @@ body{
 }
 
 h1{
-    font-size: 1.7em;
-    font-weight: 700;
+    font-size: 3em;
+    font-weight: bold;
     line-height: 1.5em;
     text-transform: uppercase;
 }
@@ -215,11 +215,35 @@ header:before{
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    opacity: 0.65;
+    opacity: 0.9;
+}
+
+.hero-charts {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    background-image: url("https://images.pexels.com/photos/814264/pexels-photo-814264.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.hero-stats {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    background-image: url("https://images.unsplash.com/photo-1521684415672-2306f06332a4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60");
+    background-size: contain;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.8;
 }
 
 .hero-text{
     padding: 0 2em 7.5em;
+    color: #e6e6ea;
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
 }
 
 /* Buttons Section */
@@ -313,6 +337,12 @@ section#contact{
         justify-content: center;
         overflow: hidden;
         padding-top: 6.5em;
+    }
+
+    .hero-stats{
+        justify-content: center;
+        overflow: hidden;
+        padding-top: 10em;
     }
 
     .hero-text{
