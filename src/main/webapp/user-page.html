@@ -16,62 +16,53 @@ limitations under the License.
 
 <!DOCTYPE html>
 <html>
-<head>
-    <title>User Page</title>
+  <head>
+    <title>Your Profile</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/user-page.css">
     <script src="/js/user-page-loader.js"></script>
-</head>
+    <link rel="icon" type="image/gif/png" href="https://images.vexels.com/media/users/3/128875/isolated/preview/69902d77024fd2848870beab794becb4-tea-plate-cup-icon-by-vexels.png">
+  </head>
+  <body onload="buildUI();">
+    <div class="content">
+      <header id="header">
+        <a class="nav-brand" href="" target="_blank">
+          <img src="https://i.postimg.cc/nLrCPBPd/test-image.png" alt="test-img">
+        </a>
 
-<body onload="buildUI();">
-<nav>
-    <ul id="navigation">
-        <li><a href="/">Home</a></li>
-    </ul>
-</nav>
-<h1 id="page-title">User Page</h1>
+        <!-- Menu -->
+        <nav id="nav-bar" class="navbar">
+          <ul id="navigation" class="nav">
+            <li class="nav-link"><a href="/">Home</a></li>
+          </ul>
+        </nav>
+      </header>
 
-<div class="userForm">
-    <h2>
-        What tea did you drink today?
-    </h2>
-
-    <form method="POST" action="/api/user-form-data">
-
+      <section>
         <div>
-            <label for="greenTea">Green Tea</label>
-            <input type="number" name="greenTea" id="greenTea" size="40" class="form-control"/>
+          <h1 id="page-title">User Page</h1>
         </div>
+      </section>
+
+      <section>
         <div>
-            <label for="whiteTea">White Tea</label>
-            <input type="number" name="whiteTea" id="whiteTea" size="40" class="form-control"/>
+          <form id="message-form" action="/messages" method="POST" class="hidden">
+            What's on your mind?
+            <br/>
+            <textarea name="text" id="message-input"></textarea>
+            <br/>
+            <input type="submit" value="Submit" class="submit" id="submit">
+          </form>
+          <br/>
+          <br/>
+          <hr/>
         </div>
-        <div>
-            <label for="blackTea">Black Tea</label>
-            <input type="number" name="blackTea" id="blackTea" size="40" class="form-control"/>
-        </div>
-        <div>
-            <label for="herbalTea">Herbal Tea</label>
-            <input type="number" name="herbalTea" id="herbalTea" size="40" class="form-control"/>
-        </div>
+      </section>
 
-        <button type="submit">Save</button>
-    </form>
-</div>
-
-
-<form id="message-form" action="/messages" method="POST" class="hidden">
-    Enter a new message:
-    <br/>
-    <textarea name="text" id="message-input"></textarea>
-    <br/>
-    <input type="submit" value="Submit">
-</form>
-<hr/>
-
-<div id="message-container">Loading...</div>
-
-</body>
-
+      <section>
+        <div id="message-container">Loading...</div>
+      </section>
+    </div>
+  </body>
 </html>

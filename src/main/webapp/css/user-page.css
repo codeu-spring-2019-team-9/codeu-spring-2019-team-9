@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 /* Set the size of the message input to be 100 pixels high
    and will fill the width of its parent element. */
 #message-input {
@@ -38,6 +39,16 @@
    isn't too close to the border. */
 .message-body {
   margin: 5px;
+}
+
+/* Give images in the message body a contained size
+  so they aren't too big */
+.message-body img {
+  display: block;
+  margin-top: 25px;
+  max-width: 250px;
+  max-height: 300px;
+  box-sizing: border-box;
 }
 
 /* Use this to hide certain elements like forms if the

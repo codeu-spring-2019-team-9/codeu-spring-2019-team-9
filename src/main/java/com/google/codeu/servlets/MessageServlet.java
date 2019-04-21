@@ -22,6 +22,10 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.Message;
 import com.google.gson.Gson;
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.Document.Type;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.apache.commons.validator.routines.UrlValidator;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /** Handles fetching and saving {@link Message} instances. */
 public class MessageServlet extends HttpServlet {
@@ -56,7 +63,7 @@ public class MessageServlet extends HttpServlet {
     if (userService.isUserLoggedIn()) {
       loggedInUser = Optional.ofNullable(userService.getCurrentUser().getEmail());
     }
-    
+
     // Request is invalid, return empty array
     // TODO: Make errors JSON objects
     if (loggedInUser.orElse("").isEmpty()) {
@@ -90,11 +97,37 @@ public class MessageServlet extends HttpServlet {
     String user = userService.getCurrentUser().getEmail();
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.none());
     String recipient = request.getParameter("recipient");
+    float sentimentScore = calculateSentimentScore(text);
 
-    System.out.println(recipient);
-    Message message = new Message(user, text, recipient);
+    // Replace image links with image tags after validating links
+    UrlValidator urlValidator = new UrlValidator();
+    String regex = "(https?://([^\\s.]+.?[^\\s.]*)+/([^\\s.]+.?[^\\s.]*)+.(png|jpg))";
+    String replacement = "<img src=\"$1\" />";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(text);
+    StringBuffer textWithImagesReplaced = new StringBuffer();
+
+    while (matcher.find()) {
+      String url = matcher.group(0);
+      if (urlValidator.isValid(url)) {
+        matcher.appendReplacement(textWithImagesReplaced, replacement);
+      } else textWithImagesReplaced.append(url);
+    }
+    matcher.appendTail(textWithImagesReplaced);
+
+    Message message = new Message(user, textWithImagesReplaced.toString(), recipient, sentimentScore);
     datastore.storeMessage(message);
 
     response.sendRedirect("/user-page.html?user=" + recipient);
+  }
+
+  // Returns the sentiment score of the input text
+  private float calculateSentimentScore(String text) throws IOException {
+    Document doc = Document.newBuilder()
+        .setContent(text).setType(Type.PLAIN_TEXT).build();
+    LanguageServiceClient languageService = LanguageServiceClient.create();
+    Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
+    languageService.close();
+    return sentiment.getScore();
   }
 }
