@@ -16,8 +16,13 @@ limitations under the License.
 
 <!DOCTYPE html>
 <html>
+<<<<<<< HEAD
   <head>
     <title>Your Profile</title>
+=======
+<head>
+    <title>User Page</title>
+>>>>>>> 240b5ca6fd506998ef0447b4fc1431aca1300dbd
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/user-page.css">
@@ -31,6 +36,7 @@ limitations under the License.
           <img src="https://i.postimg.cc/nLrCPBPd/test-image.png" alt="test-img">
         </a>
 
+<<<<<<< HEAD
         <!-- Menu -->
         <nav id="nav-bar" class="navbar">
           <ul id="navigation" class="nav">
@@ -65,4 +71,54 @@ limitations under the License.
       </section>
     </div>
   </body>
+=======
+<body onload="buildUI();">
+<nav>
+    <ul id="navigation">
+        <li><a href="/">Home</a></li>
+    </ul>
+</nav>
+<h1 id="page-title">User Page</h1>
+
+<div class="userForm">
+    <h2>
+        What tea did you drink today?
+    </h2>
+    <form method="POST" action="/api/user-form-data">
+    <div>
+        <label for="greenTea">Green Tea</label>
+        <input type="number" name="greenTea" id="greenTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="whiteTea">White Tea</label>
+        <input type="number" name="whiteTea" id="whiteTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="blackTea">Black Tea</label>
+        <input type="number" name="blackTea" id="blackTea" size="40" class="form-control"/>
+    </div>
+    <div>
+        <label for="herbalTea">Herbal Tea</label>
+        <input type="number" name="herbalTea" id="herbalTea" size="40" class="form-control"/>
+    </div>
+    <button type="submit">Save</button>
+    </form>
+
+</div>
+
+
+<form id="message-form" action="/messages" method="POST" class="hidden">
+    Enter a new message:
+    <br/>
+    <textarea name="text" id="message-input"></textarea>
+    <br/>
+    <input type="submit" value="Submit">
+</form>
+<hr/>
+
+<div id="message-container">Loading...</div>
+
+</body>
+
+>>>>>>> 240b5ca6fd506998ef0447b4fc1431aca1300dbd
 </html>

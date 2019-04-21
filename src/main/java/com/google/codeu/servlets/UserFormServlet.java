@@ -19,7 +19,10 @@ package com.google.codeu.servlets;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -30,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-
+import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.TeaCategory;
 
@@ -60,26 +63,40 @@ public class UserFormServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    Map<String, Long> userTeaData = new HashMap<String, Long>();
+        Map<String, Long> userTeaData = new HashMap<String, Long>();
 
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    LocalDate localDate = LocalDate.now();
-    String date = dtf.format(localDate);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        LocalDate localDate = LocalDate.now();
+        String date = dtf.format(localDate);
 
-    // This is temp for now, need to move this to to javascript
-    UserService userService = UserServiceFactory.getUserService();
-    if (!userService.isUserLoggedIn()) {
-      response.setStatus(401);
-      response.getWriter().println("Error: Unauthorized access");
-      return;
-    }
-    String username = userService.getCurrentUser().getEmail();
+        UserService userService = UserServiceFactory.getUserService();
+        if (!userService.isUserLoggedIn()) {
+          response.setStatus(401);
+          response.getWriter().println("Error: Unauthorized access");
+          return;
+        }
+        String username = userService.getCurrentUser().getEmail();
+        List<String> teaNames = Arrays.asList("greenTea", "whiteTea", "blackTea", "herbalTea");
 
-    userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
-    userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
-    userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
-    userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
+        for (String tea : teaNames) {
+          try {
+            String formTea = request.getParameter(tea);
+            if (Strings.isNullOrEmpty(formTea)) {
+              throw new NullPointerException();
+            }
+            Long amountOfTea = Long.parseLong(formTea);
+            userTeaData.put(tea, amountOfTea);
+          } catch (NullPointerException e) {
+            response.setStatus(400);
+            response.getWriter().println("Error: Number Format Problem for " + tea);
+          }
+        }
 
-    datastore.storeUserTeaData(userTeaData, username, date);
+        // userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
+        // userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
+        // userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
+        // userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
+    
+        datastore.storeUserTeaData(userTeaData, username, date);
   }
 }
