@@ -19,6 +19,7 @@ package com.google.codeu.data;
 import com.google.common.base.Preconditions;
 import com.google.common.flogger.FluentLogger;
 import com.google.appengine.api.datastore.PropertyContainer;
+import com.google.api.client.util.Data;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
@@ -31,13 +32,17 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
+import com.google.appengine.repackaged.com.google.type.Date;
+import com.google.codeu.data.DatastoreConstants.UserTeaData;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Optional;
+import java.util.TimeZone;
+import java.time.ZoneId;
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
@@ -52,21 +57,6 @@ public class Datastore {
 
   public Datastore() {
     datastore = DatastoreServiceFactory.getDatastoreService();
-  }
-
-  private Optional<String> getStringProperty(PropertyContainer container, String propertyName) {
-    if (!container.hasProperty(propertyName)) {
-      return Optional.empty();
-    }
-
-    String value = null;
-    try {
-      value = (String) container.getProperty(propertyName);
-    } catch (ClassCastException wrongType) {
-      logger.atSevere().withCause(wrongType).log(
-          "Property \"" + propertyName + "\" exists but is not a String.");
-    }
-    return Optional.ofNullable(value);
   }
 
   /** Stores the Message in Datastore. */
@@ -103,6 +93,88 @@ public class Datastore {
     return prepareQueryToMesssages(results);
   }
 
+  public List<Message> getAllMessages() {
+    Query query = createPublicMessageQuery();
+    PreparedQuery results = datastore.prepare(query);
+    return prepareQueryToMesssages(results);
+  }
+
+  public int getTotalMessageCount() {
+    Query query = new Query("Message");
+    PreparedQuery results = datastore.prepare(query);
+    return results.countEntities(FetchOptions.Builder.withDefaults());
+  }
+
+  /**
+   * This is to create an user form data to put in the datastore Going with option 2 highlighted in
+   * the Meeting Notes
+   *
+   * @throws EntityNotFoundException
+   */
+  public void storeUserTeaData(
+     Map<String, Long> histogram, String username, LocalDate date, ZoneId timeZone ) {
+
+    Entity entity = null;
+    Key key = createTeaUserDataKey(username, date, timeZone);
+
+
+    try {
+      entity = datastore.get(key);
+    } catch (EntityNotFoundException e) {
+      entity = createNewUserTeaDataEntity(key, username, date, timeZone);
+    }
+    setUserTeaDataHistogram(histogram, entity);
+    datastore.put(entity);
+ }
+
+  private void setUserTeaDataHistogram(Map<String, Long> histogram, Entity entity) {
+    EmbeddedEntity teaMap = new EmbeddedEntity();
+        for (String key : histogram.keySet()) {
+          teaMap.setProperty(key, histogram.get(key));
+        }
+      entity.setProperty(DatastoreConstants.UserTeaData.KIND, teaMap);
+  }
+
+  private Entity createNewUserTeaDataEntity(Key key, String username, LocalDate date, ZoneId timeZone) {
+    Entity userTeaConsumption = new Entity(key);
+        userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.USERNAME_PROPERTY, username);
+        userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.DATE_PROPERTY, date);
+        userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.TIMEZONE_PROPERTY, timeZone);
+
+    return userTeaConsumption;
+  }
+  /**
+   * Need to look into creating a key without casting the date and the timezone
+   * @param username email address of the user
+   * @param date the local date/time of the user
+   * @param timeZone the timezone of the user
+   * @return
+   */
+  private Key createTeaUserDataKey(String username, LocalDate date, ZoneId timeZone) {
+    String keyName = date + ":" + timeZone + ":" + username;
+    Key userkey = KeyFactory.createKey("UserTeaData", keyName);
+    return userkey;
+  }
+
+  private Query createPublicMessageQuery() {
+    return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
+  }
+
+  private Optional<String> getStringProperty(PropertyContainer container, String propertyName) {
+    if (!container.hasProperty(propertyName)) {
+      return Optional.empty();
+    }
+
+    String value = null;
+    try {
+      value = (String) container.getProperty(propertyName);
+    } catch (ClassCastException wrongType) {
+      logger.atSevere().withCause(wrongType).log(
+          "Property \"" + propertyName + "\" exists but is not a String.");
+    }
+    return Optional.ofNullable(value);
+  }
+  
   private Query createMessageQueryWithUserFilter(String loggedInUser, String otherUser) {
     return new Query("Message")
         .setFilter(createUserFilter(loggedInUser, otherUser))
@@ -134,12 +206,7 @@ public class Datastore {
     return CompositeFilterOperator.or(loggedInUserMessages, otherUserMessages);
   }
 
-  public List<Message> getAllMessages() {
-    Query query = createPublicMessageQuery();
-    PreparedQuery results = datastore.prepare(query);
-    return prepareQueryToMesssages(results);
-  }
-
+  
   private List<Message> prepareQueryToMesssages(PreparedQuery query) {
     List<Message> results = new ArrayList<>();
     for (Entity entity : query.asIterable()) {
@@ -159,57 +226,5 @@ public class Datastore {
     return new Message(id,sender,text,timestamp,receiver,sentimentScore);
   }
 
-  private Query createPublicMessageQuery() {
-    return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
-  }
 
-  public int getTotalMessageCount() {
-    Query query = new Query("Message");
-    PreparedQuery results = datastore.prepare(query);
-    return results.countEntities(FetchOptions.Builder.withDefaults());
-  }
-
-  /**
-   * This is to create an user form data to put in the datastore Going with option 2 highlighted in
-   * the Meeting Notes
-   *
-   * @throws EntityNotFoundException
-   */
-  public void storeUserTeaData(
-     Map<String, Long> incomingUserTeaData, String username, String date) {
-
-    Entity datastoreUser;
-    String keyName = date + ":" + username;
-    Key usernameKey = KeyFactory.createKey("UserTeaData", keyName);
-
-    try {
-      datastoreUser = datastore.get(usernameKey);
-      datastoreUser.setProperty("username", datastoreUser.getProperty("username"));
-      datastoreUser.setProperty("date", datastoreUser.getProperty("date"));
-
-      EmbeddedEntity teaMap = (EmbeddedEntity) datastoreUser.getProperty("teaData");
-
-      for (String key : teaMap.getProperties().keySet()) {
-        Long value1 = incomingUserTeaData.get(key);
-        Long value2 = value1 + (Long) teaMap.getProperty(key);
-        teaMap.setProperty(key, value2);
-      }
-
-      datastoreUser.setProperty("teaData", teaMap);
-      datastore.put(datastoreUser);
-
-    } catch (EntityNotFoundException e) {
-
-      Entity userTeaConsumption = new Entity(usernameKey);
-      userTeaConsumption.setProperty("username", username);
-      userTeaConsumption.setProperty("date", date);
-
-      EmbeddedEntity teaMap = new EmbeddedEntity();
-      for (String key : incomingUserTeaData.keySet()) {
-        teaMap.setProperty(key, incomingUserTeaData.get(key));
-      }
-      userTeaConsumption.setProperty("teaData", teaMap);
-      datastore.put(userTeaConsumption);
-    }
-  }
 }
