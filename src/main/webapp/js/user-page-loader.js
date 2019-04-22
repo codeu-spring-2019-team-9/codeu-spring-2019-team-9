@@ -18,6 +18,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 const parameterUsername = urlParams.get('user');
 
+
 // URL must include ?user=XYZ parameter. If not, redirect to homepage.
 if (!parameterUsername) {
   window.location.replace('/');
@@ -34,37 +35,37 @@ function setPageTitle() {
  */
 function showMessageFormIfLoggedIn() {
   fetch('/login-status')
-      .then((response) => {
-        return response.json();
-      })
-      .then((loginStatus) => {
-        if (loginStatus.isLoggedIn) {
-          const messageForm = document.getElementById('message-form');
-          messageForm.action = '/messages?recipient=' + parameterUsername;
-          messageForm.classList.remove('hidden');
-        }
-      });
+    .then((response) => {
+      return response.json();
+    })
+    .then((loginStatus) => {
+      if (loginStatus.isLoggedIn) {
+        const messageForm = document.getElementById('message-form');
+        messageForm.action = '/messages?recipient=' + parameterUsername;
+        messageForm.classList.remove('hidden');
+      }
+    });
 }
 
 /** Fetches messages and add them to the page. */
 function fetchMessages() {
   const url = '/messages?user=' + parameterUsername;
   fetch(url)
-      .then((response) => {
-        return response.json();
-      })
-      .then((messages) => {
-        const messagesContainer = document.getElementById('message-container');
-        if (messages.length == 0) {
-          messagesContainer.innerHTML = '<p>There are no messages between you and this user yet. Say hi!</p>';
-        } else {
-          messagesContainer.innerHTML = '';
-        }
-        messages.forEach((message) => {
-          const messageDiv = buildMessageDiv(message);
-          messagesContainer.appendChild(messageDiv);
-        });
+    .then((response) => {
+      return response.json();
+    })
+    .then((messages) => {
+      const messagesContainer = document.getElementById('message-container');
+      if (messages.length == 0) {
+        messagesContainer.innerHTML = '<p>There are no messages between you and this user yet. Say hi!</p>';
+      } else {
+        messagesContainer.innerHTML = '';
+      }
+      messages.forEach((message) => {
+        const messageDiv = buildMessageDiv(message);
+        messagesContainer.appendChild(messageDiv);
       });
+    });
 }
 
 /**
@@ -76,7 +77,7 @@ function buildMessageDiv(message) {
   const headerDiv = document.createElement('div');
   headerDiv.classList.add('message-header');
   headerDiv.appendChild(document.createTextNode(
-      message.user + ' - ' + new Date(message.timestamp)));
+    message.user + ' - ' + new Date(message.timestamp)));
 
   const bodyDiv = document.createElement('div');
   bodyDiv.classList.add('message-body');
@@ -96,3 +97,35 @@ function buildUI() {
   showMessageFormIfLoggedIn();
   fetchMessages();
 }
+
+// var handleSuccessfulResponse = function(response) {
+//   console.log('Response was successful');
+//   // ... do stuff with valid response ...
+// };
+
+// var handleErrorResponse = function(response) {
+//   console.log('Response was unsuccessful'); 
+//   console.log('Status code: ' + response.status);
+//   console.log('Status message: ' + response.statusText);
+//   // ... do stuff with error response ...
+// };
+
+// // A version of "fetch" that returns a Promise that splits
+// // responses so that "then" only receives successful responses
+// // and "catch" only receives unsuccessful responses.
+// var fetchWithErrorHandling = function(url) {
+//  return fetch(url).then(function(response) {
+//    if (!response.ok) {
+//      console.log('Response is not OK');
+//      throw response;
+//    }
+//    console.log('Response is OK');
+//    return response;
+//  });
+// };
+// const someURL = "/api/user-form-data";
+// // ...
+// var eventualResponse = fetchWithErrorHandling(someUrl);
+// eventualResponse.then(handleSuccessfulResponse);
+// eventualResponse.catch(handleErrorResponse);
+// // ...   

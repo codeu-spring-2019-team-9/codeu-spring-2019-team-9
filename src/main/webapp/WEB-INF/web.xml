@@ -41,6 +41,17 @@
     <servlet-class>com.google.codeu.servlets.StatsPageServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>message-chart</servlet-name>
+    <servlet-class>com.google.codeu.servlets.ChartServlet</servlet-class>
+  </servlet>
+
+    <servlet>
+    <servlet-name>user-data-chart</servlet-name>
+    <servlet-class>com.google.codeu.servlets.UserFormServlet</servlet-class>
+  </servlet>
+
+
   <servlet-mapping>
     <url-pattern>/login</url-pattern>
     <servlet-name>login</servlet-name>
@@ -65,4 +76,16 @@
     <url-pattern>/stats</url-pattern>
     <servlet-name>stats</servlet-name>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/api/chart</url-pattern>
+    <servlet-name>message-chart</servlet-name>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <url-pattern>/api/user-form-data</url-pattern>
+    <servlet-name>user-data-chart</servlet-name>
+  </servlet-mapping>
+
+
 </web-app>

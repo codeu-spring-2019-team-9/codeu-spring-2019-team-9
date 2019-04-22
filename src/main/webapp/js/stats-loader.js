@@ -3,7 +3,9 @@ var _statsPromise = null;
 function getOrPrefetchStats() {
   const url = "/stats";
   if (_statsPromise == null) {
-    _statsPromise = fetch(url).then(response => { return response.json(); });
+    _statsPromise = fetch(url).then(response => {
+      return response.json();
+    });
   }
   return _statsPromise;
 }
