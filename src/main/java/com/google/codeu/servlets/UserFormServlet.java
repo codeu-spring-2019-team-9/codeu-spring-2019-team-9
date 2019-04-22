@@ -52,12 +52,7 @@ public class UserFormServlet extends HttpServlet {
     return new Datastore();
   }
 
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      }
-
+ 
   /*
    * This will always create a new Map with the values of the tea's
    * Currently, there is no error handling as of right now
@@ -75,7 +70,7 @@ public class UserFormServlet extends HttpServlet {
 
         UserService userService = UserServiceFactory.getUserService();
         if (!userService.isUserLoggedIn()) {
-          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
         String username = userService.getCurrentUser().getEmail();
         List<String> teaNames = Arrays.asList("greenTea", "whiteTea", "blackTea", "herbalTea");
@@ -88,7 +83,7 @@ public class UserFormServlet extends HttpServlet {
           try {
             amountOfTea = Long.parseLong(formTea);
           } catch(Exception e) {
-          doGet(request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
           userTeaData.put(tea, amountOfTea);
           }

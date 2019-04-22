@@ -145,8 +145,8 @@ public class Datastore {
    */
   private Key createTeaUserDataKey(String username, Date date) {
     //I think that we can just have the key be the username because we now have a property of the date
-    //String keyName = date + ":" + username;
-    Key userkey = KeyFactory.createKey("UserTeaData", username);
+    String keyName = date + ":" + username;
+    Key userkey = KeyFactory.createKey("UserTeaData", keyName);
     return userkey;
   }
 

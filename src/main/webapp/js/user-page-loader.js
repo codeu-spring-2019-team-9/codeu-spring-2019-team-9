@@ -18,6 +18,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 const parameterUsername = urlParams.get('user');
 
+
 // URL must include ?user=XYZ parameter. If not, redirect to homepage.
 if (!parameterUsername) {
   window.location.replace('/');
@@ -96,3 +97,35 @@ function buildUI() {
   showMessageFormIfLoggedIn();
   fetchMessages();
 }
+
+// var handleSuccessfulResponse = function(response) {
+//   console.log('Response was successful');
+//   // ... do stuff with valid response ...
+// };
+
+// var handleErrorResponse = function(response) {
+//   console.log('Response was unsuccessful'); 
+//   console.log('Status code: ' + response.status);
+//   console.log('Status message: ' + response.statusText);
+//   // ... do stuff with error response ...
+// };
+
+// // A version of "fetch" that returns a Promise that splits
+// // responses so that "then" only receives successful responses
+// // and "catch" only receives unsuccessful responses.
+// var fetchWithErrorHandling = function(url) {
+//  return fetch(url).then(function(response) {
+//    if (!response.ok) {
+//      console.log('Response is not OK');
+//      throw response;
+//    }
+//    console.log('Response is OK');
+//    return response;
+//  });
+// };
+// const someURL = "/api/user-form-data";
+// // ...
+// var eventualResponse = fetchWithErrorHandling(someUrl);
+// eventualResponse.then(handleSuccessfulResponse);
+// eventualResponse.catch(handleErrorResponse);
+// // ...   
