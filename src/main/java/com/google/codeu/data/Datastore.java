@@ -76,6 +76,7 @@ public class Datastore {
     messageEntity.setProperty("text", message.getText());
     messageEntity.setProperty("timestamp", message.getTimestamp());
     messageEntity.setProperty("recipient", message.getRecipient());
+    messageEntity.setProperty("sentimentScore", message.getSentimentScore());
 
     datastore.put(messageEntity);
   }
@@ -153,8 +154,9 @@ public class Datastore {
     String text = getStringProperty(entity, "text").orElse("");
     long timestamp = (long) entity.getProperty("timestamp");
     String sender = (String) entity.getProperty("user");
-    String receiver = (String) entity.getProperty("recipient");
-    return new Message(id, sender, text, timestamp, receiver);
+    String receiver = (String) entity.getProperty("receiver");
+    float sentimentScore = entity.getProperty("sentimentScore") == null ? (float) 0.0 : ((Double) entity.getProperty("sentimentScore")).floatValue();
+    return new Message(id, sender, text, timestamp, receiver, sentimentScore);
   }
 
   private Query createPublicMessageQuery() {
