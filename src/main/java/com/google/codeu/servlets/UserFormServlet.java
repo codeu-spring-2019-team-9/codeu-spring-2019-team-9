@@ -17,9 +17,6 @@
 package com.google.codeu.servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 import com.google.codeu.data.Datastore;
 
 
@@ -85,7 +81,7 @@ public class UserFormServlet extends HttpServlet {
         List<String> teaNames = Arrays.asList("greenTea", "whiteTea", "blackTea", "herbalTea");
 
         for (String tea : teaNames) {
-          
+
           String formTea = request.getParameter(tea);
           Long amountOfTea = Long.MIN_VALUE;
 
