@@ -31,9 +31,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
-import com.google.appengine.repackaged.org.joda.time.LocalDateTime;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -139,15 +137,16 @@ public class Datastore {
     return userTeaConsumption;
   }
   /**
-   * TODO: Need to look into creating a key without casting the date and the timezone
+   * TODO: Need to look into creating a key without casting the date
    * @param username email address of the user
    * @param date the local date/time of the user
    * @param timeZone the timezone of the user
    * @return
    */
   private Key createTeaUserDataKey(String username, Date date) {
-    String keyName = date + ":" + username;
-    Key userkey = KeyFactory.createKey("UserTeaData", keyName);
+    //I think that we can just have the key be the username because we now have a property of the date
+    //String keyName = date + ":" + username;
+    Key userkey = KeyFactory.createKey("UserTeaData", username);
     return userkey;
   }
 
