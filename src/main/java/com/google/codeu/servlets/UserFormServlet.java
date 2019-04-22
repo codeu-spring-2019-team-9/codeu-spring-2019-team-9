@@ -17,9 +17,10 @@
 package com.google.codeu.servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 import com.google.codeu.data.Datastore;
-import com.google.codeu.data.TeaCategory;
+
+import org.joda.time.DateTime;
 
 public class UserFormServlet extends HttpServlet {
 
@@ -55,20 +57,25 @@ public class UserFormServlet extends HttpServlet {
     return new Datastore();
   }
 
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+        doPost(request, response);
+      }
+
   /*
    * This will always create a new Map with the values of the tea's
    * Currently, there is no error handling as of right now
    */
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
         Map<String, Long> userTeaData = new HashMap<String, Long>();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        LocalDate localDate = LocalDate.now();
-        String date = dtf.format(localDate);
-
+        LocalDate date = LocalDate.now();
+        ZoneId timeZone = ZoneId.of("GMT");
         UserService userService = UserServiceFactory.getUserService();
         if (!userService.isUserLoggedIn()) {
           response.setStatus(401);
@@ -79,24 +86,14 @@ public class UserFormServlet extends HttpServlet {
         List<String> teaNames = Arrays.asList("greenTea", "whiteTea", "blackTea", "herbalTea");
 
         for (String tea : teaNames) {
-          try {
-            String formTea = request.getParameter(tea);
-            if (Strings.isNullOrEmpty(formTea)) {
-              throw new NullPointerException();
-            }
-            Long amountOfTea = Long.parseLong(formTea);
-            userTeaData.put(tea, amountOfTea);
-          } catch (NullPointerException e) {
+          String formTea = request.getParameter(tea);
+          if (Strings.isNullOrEmpty(formTea)) {
             response.setStatus(400);
-            response.getWriter().println("Error: Number Format Problem for " + tea);
+            response.setContentType("text/html");
           }
-        }
-
-        // userTeaData.put("greenTea", Long.parseLong(request.getParameter("greenTea")));
-        // userTeaData.put("whiteTea", Long.parseLong(request.getParameter("whiteTea")));
-        // userTeaData.put("blackTea", Long.parseLong(request.getParameter("blackTea")));
-        // userTeaData.put("herbalTea", Long.parseLong(request.getParameter("herbalTea")));
-    
-        datastore.storeUserTeaData(userTeaData, username, date);
+          Long amountOfTea = Long.parseLong(formTea);
+          userTeaData.put(tea, amountOfTea);
+          }
+        datastore.storeUserTeaData(userTeaData, username, date, timeZone);
   }
 }
