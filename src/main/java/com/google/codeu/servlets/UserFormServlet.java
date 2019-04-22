@@ -59,7 +59,7 @@ public class UserFormServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-        doPost(request, response);
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
 
   /*
@@ -79,20 +79,21 @@ public class UserFormServlet extends HttpServlet {
 
         UserService userService = UserServiceFactory.getUserService();
         if (!userService.isUserLoggedIn()) {
-          response.setStatus(401);
-          response.getWriter().println("Error: Unauthorized access");
-          return;
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
         String username = userService.getCurrentUser().getEmail();
         List<String> teaNames = Arrays.asList("greenTea", "whiteTea", "blackTea", "herbalTea");
 
         for (String tea : teaNames) {
+          
           String formTea = request.getParameter(tea);
-          if (Strings.isNullOrEmpty(formTea)) {
-            response.setStatus(400);
-            response.setContentType("text/html");
-          }
-          Long amountOfTea = Long.parseLong(formTea);
+          Long amountOfTea = Long.MIN_VALUE;
+
+          try {
+            amountOfTea = Long.parseLong(formTea);
+          } catch(Exception e) {
+          doGet(request, response);
+        }
           userTeaData.put(tea, amountOfTea);
           }
         datastore.storeUserTeaData(userTeaData, username, date);
