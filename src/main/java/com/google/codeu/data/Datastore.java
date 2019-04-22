@@ -19,7 +19,6 @@ package com.google.codeu.data;
 import com.google.common.base.Preconditions;
 import com.google.common.flogger.FluentLogger;
 import com.google.appengine.api.datastore.PropertyContainer;
-import com.google.api.client.util.Data;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.EmbeddedEntity;
@@ -32,17 +31,15 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
-import com.google.appengine.repackaged.com.google.type.Date;
-import com.google.codeu.data.DatastoreConstants.UserTeaData;
+import com.google.appengine.repackaged.org.joda.time.LocalDateTime;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Optional;
-import java.util.TimeZone;
-import java.time.ZoneId;
 
 /** import for Fetch Options */
 import com.google.appengine.api.datastore.FetchOptions;
@@ -112,16 +109,16 @@ public class Datastore {
    * @throws EntityNotFoundException
    */
   public void storeUserTeaData(
-     Map<String, Long> histogram, String username, LocalDate date, ZoneId timeZone ) {
+     Map<String, Long> histogram, String username, Date date) {
 
     Entity entity = null;
-    Key key = createTeaUserDataKey(username, date, timeZone);
+    Key key = createTeaUserDataKey(username, date);
 
 
     try {
       entity = datastore.get(key);
     } catch (EntityNotFoundException e) {
-      entity = createNewUserTeaDataEntity(key, username, date, timeZone);
+      entity = createNewUserTeaDataEntity(key, username, date);
     }
     setUserTeaDataHistogram(histogram, entity);
     datastore.put(entity);
@@ -135,23 +132,21 @@ public class Datastore {
       entity.setProperty(DatastoreConstants.UserTeaData.KIND, teaMap);
   }
 
-  private Entity createNewUserTeaDataEntity(Key key, String username, LocalDate date, ZoneId timeZone) {
+  private Entity createNewUserTeaDataEntity(Key key, String username, Date date) {
     Entity userTeaConsumption = new Entity(key);
         userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.USERNAME_PROPERTY, username);
         userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.DATE_PROPERTY, date);
-        userTeaConsumption.setProperty(DatastoreConstants.UserTeaData.TIMEZONE_PROPERTY, timeZone);
-
     return userTeaConsumption;
   }
   /**
-   * Need to look into creating a key without casting the date and the timezone
+   * TODO: Need to look into creating a key without casting the date and the timezone
    * @param username email address of the user
    * @param date the local date/time of the user
    * @param timeZone the timezone of the user
    * @return
    */
-  private Key createTeaUserDataKey(String username, LocalDate date, ZoneId timeZone) {
-    String keyName = date + ":" + timeZone + ":" + username;
+  private Key createTeaUserDataKey(String username, Date date) {
+    String keyName = date + ":" + username;
     Key userkey = KeyFactory.createKey("UserTeaData", keyName);
     return userkey;
   }
@@ -223,49 +218,5 @@ public class Datastore {
 
   private Query createPublicMessageQuery() {
     return new Query("Message").addSort("timestamp", SortDirection.ASCENDING);
-  }
-
-  /**
-   * This is to create an user form data to put in the datastore Going with option 2 highlighted in
-   * the Meeting Notes
-   *
-   * @throws EntityNotFoundException
-   */
-  public void storeUserTeaData(
-     Map<String, Long> incomingUserTeaData, String username, String date) {
-
-    Entity datastoreUser;
-    String keyName = date + ":" + username;
-    Key usernameKey = KeyFactory.createKey("UserTeaData", keyName);
-
-    try {
-      datastoreUser = datastore.get(usernameKey);
-      datastoreUser.setProperty("username", datastoreUser.getProperty("username"));
-      datastoreUser.setProperty("date", datastoreUser.getProperty("date"));
-
-      EmbeddedEntity teaMap = (EmbeddedEntity) datastoreUser.getProperty("teaData");
-
-      for (String key : teaMap.getProperties().keySet()) {
-        Long value1 = incomingUserTeaData.get(key);
-        Long value2 = value1 + (Long) teaMap.getProperty(key);
-        teaMap.setProperty(key, value2);
-      }
-
-      datastoreUser.setProperty("teaData", teaMap);
-      datastore.put(datastoreUser);
-
-    } catch (EntityNotFoundException e) {
-
-      Entity userTeaConsumption = new Entity(usernameKey);
-      userTeaConsumption.setProperty("username", username);
-      userTeaConsumption.setProperty("date", date);
-
-      EmbeddedEntity teaMap = new EmbeddedEntity();
-      for (String key : incomingUserTeaData.keySet()) {
-        teaMap.setProperty(key, incomingUserTeaData.get(key));
-      }
-      userTeaConsumption.setProperty("teaData", teaMap);
-      datastore.put(userTeaConsumption);
-    }
   }
 }

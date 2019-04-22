@@ -37,7 +37,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.repackaged.com.google.api.client.util.Strings;
 import com.google.codeu.data.Datastore;
 
-import org.joda.time.DateTime;
 
 public class UserFormServlet extends HttpServlet {
 
@@ -73,9 +72,11 @@ public class UserFormServlet extends HttpServlet {
       throws ServletException, IOException {
 
         Map<String, Long> userTeaData = new HashMap<String, Long>();
+        
+        //GAP will only take Date as a property so we are going to just convert ZonedDateTime, it has timezone in it 
+        //EX: "Mon Apr 22 04:45:54 UTC 2019"
+        Date date = Date.from(java.time.ZonedDateTime.now().toInstant());
 
-        LocalDate date = LocalDate.now();
-        ZoneId timeZone = ZoneId.of("GMT");
         UserService userService = UserServiceFactory.getUserService();
         if (!userService.isUserLoggedIn()) {
           response.setStatus(401);
@@ -94,6 +95,6 @@ public class UserFormServlet extends HttpServlet {
           Long amountOfTea = Long.parseLong(formTea);
           userTeaData.put(tea, amountOfTea);
           }
-        datastore.storeUserTeaData(userTeaData, username, date, timeZone);
+        datastore.storeUserTeaData(userTeaData, username, date);
   }
 }
