@@ -1,0 +1,8 @@
+# cloudbuild.yaml
+steps:
+# Builds the application and deploys it to App Engine using Maven.
+- id: 'build_and_deploy'
+- name: 'gcr.io/cloud-builders/mvn'
+  args: ['package']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['app', 'deploy', 'src/main/webapp/WEB-INF/appengine-web.xml']
